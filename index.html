@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Métodos Numéricos | Jacobi & Gauss-Seidel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="background-glow">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="badge-tag">MÉTODOS ITERATIVOS DE ÁLGEBRA LINEAL</div>
+      <h1 class="gradient-title">Calculadora de Jacobi y Gauss-Seidel</h1>
+      <p class="subtitle">Resolución paso a paso detallada de sistemas de ecuaciones lineales con rigor formal, verificación de convergencia y precisión de 6 decimales.</p>
+      
+      <nav class="nav-tabs">
+        <button id="tab-calc" class="tab-btn active" onclick="switchTab('calculator')">
+          Calculadora & Solucionador
+        </button>
+        <button id="tab-examples" class="tab-btn" onclick="switchTab('examples')">
+          6 Ejemplos Prácticos
+        </button>
+        <button id="tab-theory" class="tab-btn" onclick="switchTab('theory')">
+          Teoría, Algoritmos y Restricciones
+        </button>
+        <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')">
+          Guía de Uso
+        </button>
+      </nav>
+    </header>
+
+    <!-- TAB 1: CALCULATOR -->
+    <section id="section-calculator" class="tab-section active">
+      <div class="layout-grid">
+        <!-- Control Sidebar / Setup -->
+        <div class="panel glass-card controls-panel">
+          <div class="panel-header">
+            <h3>Configuración del Sistema</h3>
+            <span class="badge info">Mínimo 3 variables</span>
+          </div>
+
+          <!-- Quick Load Selector -->
+          <div class="form-group">
+            <label for="example-select">Cargar Ejemplo Predefinido:</label>
+            <div class="select-wrapper">
+              <select id="example-select" onchange="loadPresetExample(this.value)">
+                <option value="">-- Seleccionar un ejemplo --</option>
+                <option value="ex1">Ejemplo 1: Sistema 3x3 Estándar (Diagonal Dominante)</option>
+                <option value="ex2">Ejemplo 2: Sistema 3x3 de Física / Circuitos</option>
+                <option value="ex3">Ejemplo 3: Sistema 3x3 con Reordenamiento de Filas</option>
+                <option value="ex4">Ejemplo 4: Sistema 4x4 Estructuras / Vigas</option>
+                <option value="ex5">Ejemplo 5: Sistema 3x3 de Transferencia de Calor</option>
+                <option value="ex6">Ejemplo 6: Sistema 4x4 Flujo de Redes Químicas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="matrix-size">Variables ($n$):</label>
+              <div class="number-stepper">
+                <button type="button" class="stepper-btn" onclick="changeSize(-1)">−</button>
+                <input type="number" id="matrix-size" min="3" max="6" value="3" readonly>
+                <button type="button" class="stepper-btn" onclick="changeSize(1)">+</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="method-select">Método de Solución:</label>
+              <div class="select-wrapper">
+                <select id="method-select">
+                  <option value="jacobi">Método de Jacobi</option>
+                  <option value="seidel" selected>Método de Gauss-Seidel</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="min-iterations" title="Mínimo de iteraciones que se forzarán a realizar">
+                Iteraciones Mínimas:
+              </label>
+              <input type="number" id="min-iterations" min="6" max="50" value="6">
+              <span class="field-hint">Mínimo 6 exigido</span>
+            </div>
+
+            <div class="form-group">
+              <label for="max-iterations">Iteraciones Máximas:</label>
+              <input type="number" id="max-iterations" min="6" max="100" value="20">
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="tolerance">Tolerancia de Error (&epsilon;):</label>
+              <input type="text" id="tolerance" value="0.000001">
+              <span class="field-hint">Precisión a 6 decimales</span>
+            </div>
+
+            <div class="form-group">
+              <label for="error-type">Tipo de Error:</label>
+              <div class="select-wrapper">
+                <select id="error-type">
+                  <option value="relative">Error Relativo Porcentual (%)</option>
+                  <option value="absolute">Error Absoluto (&Delta;x)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="precision-mode">Ajuste a 6 Cifras Decimales:</label>
+            <div class="select-wrapper">
+              <select id="precision-mode">
+                <option value="round" selected>Redondeo estricto a 6 decimales (0.xxxxxx)</option>
+                <option value="truncate">Truncamiento directo a 6 decimales (ignorar el resto)</option>
+              </select>
+            </div>
+            <span class="field-hint">Descarta cualquier cifra posterior al 6to decimal en cada cálculo</span>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="btn-reorder" class="btn btn-secondary" onclick="autoReorderForDominance()" title="Intenta permutar filas para que la matriz sea diagonalmente dominante">
+              Ordenar Filas (Dominancia)
+            </button>
+            <button id="btn-clear" class="btn btn-ghost" onclick="clearMatrixInputs()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Matrix Input Card -->
+        <div class="panel glass-card matrix-panel">
+          <div class="panel-header">
+            <h3>Matriz de Coeficientes ($A$) y Vector Independiente ($b$)</h3>
+            <div id="dominance-badge" class="badge">Analizando...</div>
+          </div>
+          <p class="panel-desc">Ingresa los coeficientes del sistema lineal $A \cdot x = b$. Cada fila representa una ecuación lineal:</p>
+
+          <div class="matrix-overflow-container">
+            <div id="matrix-inputs-container" class="matrix-grid"></div>
+          </div>
+
+          <div class="initial-vector-section">
+            <h4>Vector Inicial de Aproximación ($x^{(0)}$)</h4>
+            <div id="initial-vector-container" class="initial-vector-grid"></div>
+          </div>
+
+          <div class="cta-row">
+            <button id="btn-solve" class="btn btn-primary btn-lg" onclick="solveSystem()">
+              Calcular Solución Paso a Paso
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convergence & Validation Banner -->
+      <div id="validation-banner" class="validation-banner" style="display: none;"></div>
+
+      <!-- Detailed Step-by-Step Output Section -->
+      <section id="results-container" class="results-section" style="display: none;">
+        <div class="results-header glass-card">
+          <div class="summary-top">
+            <div>
+              <span class="badge success" id="res-method-badge">Gauss-Seidel</span>
+              <h2 id="res-status-title">Resultados del Sistema</h2>
+              <p id="res-summary-desc" class="res-desc"></p>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-secondary" onclick="window.print()">Imprimir / Guardar PDF</button>
+            </div>
+          </div>
+
+          <!-- Final Answer Card -->
+          <div class="solution-card" id="final-solution-card">
+            <h4>Vector Solución Final Obtenido:</h4>
+            <div id="solution-values-grid" class="solution-values-grid"></div>
+          </div>
+        </div>
+
+        <!-- Formulas desglosadas por cada iteración -->
+        <div class="step-controls-bar">
+          <div class="step-toggle-title">
+            <h3>Desglose Detallado de Cada Iteración (Paso a Paso)</h3>
+            <p>Cada ecuación se despeja paso por paso sustituyendo los valores numéricos correspondientes sin omitir operaciones.</p>
+          </div>
+          <div class="toggle-buttons">
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllSteps(true)">Expandir Todos</button>
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllSteps(false)">Colapsar Todos</button>
+          </div>
+        </div>
+
+        <div id="step-by-step-cards" class="step-cards-list"></div>
+
+        <!-- Master Table of Iterations -->
+        <div class="panel glass-card table-panel">
+          <div class="panel-header">
+            <h3>Tabla Resumen de Todas las Iteraciones</h3>
+            <span class="badge info">Formato a 6 decimales (0.xxxxxx)</span>
+          </div>
+          <div class="table-responsive">
+            <table id="iterations-table" class="modern-table">
+              <thead>
+                <!-- Injected via JS -->
+              </thead>
+              <tbody>
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- TAB 2: 6 EXAMPLES -->
+    <section id="section-examples" class="tab-section">
+      <div class="examples-header glass-card">
+        <h2>Catálogo de 6 Ejemplos Prácticos Completos</h2>
+        <p>Sistemas aplicados y matemáticos diseñados para validar Jacobi y Gauss-Seidel, mostrando convergencia, física aplicada y reordenamiento de filas.</p>
+      </div>
+
+      <div class="examples-grid" id="examples-cards-grid">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 3: THEORY & RESTRICTIONS -->
+    <section id="section-theory" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>1. Definición Formal y Descomposición Matricial</h2>
+          <p>Sea un sistema de ecuaciones algebraicas lineales de dimensión $n \times n$ expresado de forma matricial:</p>
+          <div class="formula-callout" style="font-size: 1.1rem;">A <strong>x</strong> = <strong>b</strong>, &nbsp;&nbsp; donde A &isin; &reals;<sup>n &times; n</sup>, &nbsp; <strong>x</strong>, <strong>b</strong> &isin; &reals;<sup>n</sup></div>
+          <p>Para construir una sucesión iterativa convergente {<strong>x</strong><sup>(k)</sup>}, se realiza una partición de la matriz de coeficientes A. La descomposición aditiva clásica es:</p>
+          <div class="formula-callout" style="font-size: 1.1rem;">A = D - L - U</div>
+          <p>donde <strong>D</strong> es la matriz diagonal principal, <strong>-L</strong> es la matriz triangular inferior estricta y <strong>-U</strong> es la matriz triangular superior estricta.</p>
+          
+          <hr class="divider">
+
+          <h2>2. Método de Jacobi (Resolución Simultánea)</h2>
+          <p>El método asume que det(D) &ne; 0 y reescribe el sistema como D<strong>x</strong> = (L+U)<strong>x</strong> + <strong>b</strong>. Su fórmula de recurrencia vectorial y su Matriz de Iteración (T<sub>J</sub>) son:</p>
+          <div class="formula-callout"><strong>x</strong><sup>(k+1)</sup> = D<sup>-1</sup>(L + U)<strong>x</strong><sup>(k)</sup> + D<sup>-1</sup><strong>b</strong> &nbsp;&nbsp;&rArr;&nbsp;&nbsp; <strong>x</strong><sup>(k+1)</sup> = T<sub>J</sub> <strong>x</strong><sup>(k)</sup> + <strong>c</strong><sub>J</sub></div>
+          <p>En forma escalar, las incógnitas se actualizan de manera paralela usando información <em>exclusiva</em> del paso (k):</p>
+          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = &frac1{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j &ne; i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
+
+          <hr class="divider">
+
+          <h2>3. Método de Gauss-Seidel (Resolución Sucesiva)</h2>
+          <p>Aprovechando la invertibilidad de la matriz triangular (D - L), evalúa las incógnitas secuencialmente para sustituirlas en tiempo real. Su forma vectorial es:</p>
+          <div class="formula-callout"><strong>x</strong><sup>(k+1)</sup> = (D - L)<sup>-1</sup> U <strong>x</strong><sup>(k)</sup> + (D - L)<sup>-1</sup><strong>b</strong> &nbsp;&nbsp;&rArr;&nbsp;&nbsp; <strong>x</strong><sup>(k+1)</sup> = T<sub>GS</sub> <strong>x</strong><sup>(k)</sup> + <strong>c</strong><sub>GS</sub></div>
+          <p>Escalarmente, el algoritmo incorpora los valores inmediatamente evaluados:</p>
+          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = &frac1{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j < i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k+1)</sup> - &sum;<sub>j > i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
+          <p><strong>Teorema de Stein-Rosenberg:</strong> Establece empíricamente que si A es una matriz con elementos extradiagonales no positivos y diagonal positiva, entonces &rho;(T<sub>GS</sub>) &le; &rho;(T<sub>J</sub>) &lt; 1. Si ambos convergen, Gauss-Seidel lo hace estrictamente más rápido.</p>
+
+          <hr class="divider">
+
+          <h2>4. Extensión Numérica: Sobre-Relajación Sucesiva (SOR)</h2>
+          <p>En la computación científica avanzada, Gauss-Seidel se generaliza empleando un factor de relajación escalar &omega; &isin; (0, 2) para alterar la tasa de convergencia asintótica:</p>
+          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = (1 - &omega;) x<sub>i</sub><sup>(k)</sup> + &frac{&omega;}{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j < i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k+1)</sup> - &sum;<sub>j > i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
+          <p><em>Nota Topológica:</em> Para &omega; = 1, la ecuación SOR colapsa exactamente al método de Gauss-Seidel puro.</p>
+
+          <hr class="divider">
+
+          <h2>5. Teoremas de Convergencia y Normas Vectoriales</h2>
+          <div class="restrictions-grid">
+            <div class="restriction-box">
+              <h4>1. Invertibilidad y Singularidad</h4>
+              <p>El algoritmo colapsa (error por división nula) si existe un autovalor nulo en la diagonal (a<sub>ii</sub> = 0). Computacionalmente se requiere el pivoteo o la permutación estricta de filas antes de iterar.</p>
+            </div>
+            <div class="restriction-box">
+              <h4>2. Discos de Gershgorin y Dominancia (EDD)</h4>
+              <p>El teorema de Gershgorin establece que si la matriz es estrictamente dominante por filas (|a<sub>ii</sub>| > &sum; |a<sub>ij</sub>|), los autovalores iterativos quedarán acotados dentro del plano complejo, forzando convergencia incondicional.</p>
+            </div>
+            <div class="restriction-box">
+              <h4>3. Análisis del Radio Espectral &rho;(T)</h4>
+              <p>La condición <strong>necesaria y suficiente</strong> para la estabilidad iterativa es que su radio espectral sea menor que 1: &rho;(T) = max |&lambda;<sub>i</sub>(T)| &lt; 1. La tasa asintótica está dada por R = -ln(&rho;(T)).</p>
+            </div>
+            <div class="restriction-box">
+              <h4>4. Evaluación en Norma Infinito (&infin;)</h4>
+              <p>La tolerancia se valida utilizando la Norma Chebyshev o Norma Máxima || <strong>x</strong><sup>(k+1)</sup> - <strong>x</strong><sup>(k)</sup> ||<sub>&infin;</sub> &lt; &epsilon; garantizando que la perturbación se disipe uniformemente en el hiperespacio.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TAB 4: MANUAL -->
+    <section id="section-manual" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>Guía Rápida: Cómo usar la Calculadora</h2>
+          <p>Sigue estos pasos para obtener la solución a tu sistema de ecuaciones lineales sin problemas matemáticos.</p>
+          
+          <hr class="divider">
+
+          <h3>Paso 1: Configurar el Sistema</h3>
+          <p>Primero, en el panel lateral izquierdo, define el tamaño de tu matriz (entre 3x3 y 6x6). También puedes cargar uno de los <strong>6 ejemplos prácticos</strong> para ver cómo se llenan los datos automáticamente.</p>
+          <ul style="margin-top: 10px; margin-left: 20px; color: #cbd5e1; line-height: 1.6;">
+            <li><strong>Iteraciones Mínimas:</strong> Forzará al sistema a calcular al menos esta cantidad de iteraciones (6 por defecto).</li>
+            <li><strong>Tolerancia (&epsilon;):</strong> El programa se detendrá cuando el error sea menor a este valor.</li>
+            <li><strong>Truncamiento vs Redondeo:</strong> Escoge si quieres que la calculadora corte los números en el 6to decimal exacto o los redondee (recomendamos redondeo para mayor precisión).</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h3>Paso 2: Ingresar la Matriz y Analizar Dominancia</h3>
+          <p>Ingresa los coeficientes de tus ecuaciones. Presta especial atención al recuadro de la parte superior derecha que dice <strong>"Analizando..."</strong>.</p>
+          <div class="formula-callout" style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; text-align: left; padding: 15px; margin-top: 15px;">
+            <strong style="color: #6ee7b7; font-size: 1.05rem;">¡IMPORTANTE! Uso del botón "Ordenar Filas":</strong><br><br>
+            Para que Jacobi y Gauss-Seidel no tiren un error (o den infinito), el número más grande de cada ecuación debe estar en la diagonal principal. Si el sistema te advierte de "Dominancia parcial", dale clic al botón <strong>"Ordenar Filas (Dominancia)"</strong> y la calculadora permutará automáticamente tus ecuaciones para garantizar la convergencia matemática.
+          </div>
+
+          <hr class="divider">
+
+          <h3>Paso 3: Calcular y Analizar el Desglose</h3>
+          <p>Haz clic en "Calcular Solución Paso a Paso". En la parte inferior aparecerá la solución final obtenida, y justo debajo verás <strong>tarjetas expandibles</strong> por cada iteración.</p>
+          <ul style="margin-top: 10px; margin-left: 20px; color: #cbd5e1; line-height: 1.6;">
+            <li>Haz clic en cualquier encabezado de <strong>Iteración</strong> para ver su contenido.</li>
+            <li>Ahí verás el despeje de la fórmula para cada variable y la sustitución paso por paso.</li>
+            <li>Usa el botón azul <strong>"Ver desglose aritmético"</strong> si necesitas ver exactamente cómo se sumó y restó el numerador de manera interna. Esto es muy útil para demostrarle a tu profesor que tus resultados están libres de errores manuales.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p>Calculadora Didáctica de Métodos Numéricos &bull; Precisión a 6 decimales (0.xxxxxx) &bull; Jacobi &amp; Gauss-Seidel</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
