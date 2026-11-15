@@ -3,45 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Métodos Numéricos | Jacobi & Gauss-Seidel</title>
+  <title>Calculadora de Métodos Numéricos | Jacobi, Gauss-Seidel, Bairstow & Newton-Raphson</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX: tipografía LaTeX real para todas las fórmulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="styles.css?v=20261111_rev8">
 </head>
 <body>
-  <div class="background-glow">
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="glow-orb orb-3"></div>
-  </div>
-
   <div class="app-container">
-    <!-- Header -->
-    <header class="main-header">
-      <div class="badge-tag">MÉTODOS ITERATIVOS DE ÁLGEBRA LINEAL</div>
-      <h1 class="gradient-title">Calculadora de Jacobi y Gauss-Seidel</h1>
-      <p class="subtitle">Resolución paso a paso detallada de sistemas de ecuaciones lineales con rigor formal, verificación de convergencia y precisión de 6 decimales.</p>
-      
-      <nav class="nav-tabs">
-        <button id="tab-calc" class="tab-btn active" onclick="switchTab('calculator')">
-          Calculadora & Solucionador
-        </button>
-        <button id="tab-examples" class="tab-btn" onclick="switchTab('examples')">
-          6 Ejemplos Prácticos
-        </button>
-        <button id="tab-theory" class="tab-btn" onclick="switchTab('theory')">
-          Teoría, Algoritmos y Restricciones
-        </button>
-        <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')">
-          Guía de Uso
-        </button>
-      </nav>
-    </header>
+    <!-- Barra de Telemetría y Estado de Laboratorio -->
+    <div class="lab-telemetry-strip">
+      <div class="telemetry-left">
+        <span class="telemetry-led"></span>
+        <span class="telemetry-title">LABORATORIO DE MÉTODOS NUMÉRICOS</span>
+        <span class="telemetry-tag">RIGOR FORMAL IEEE-754</span>
+      </div>
+      <div class="telemetry-center">
+        <span class="telemetry-badge"><span class="badge-dot emerald"></span> SISTEMAS LINEALES</span>
+        <span class="telemetry-badge"><span class="badge-dot amber"></span> POLINOMIOS (BAIRSTOW)</span>
+        <span class="telemetry-badge"><span class="badge-dot cyan"></span> NO LINEAL (NEWTON)</span>
+        <span class="telemetry-badge"><span class="badge-dot violet"></span> DIFERENCIACIÓN</span>
+        <span class="telemetry-badge"><span class="badge-dot teal"></span> INTEGRACIÓN</span>
+      </div>
+      <div class="telemetry-right">
+        <span class="telemetry-metric">\(\varepsilon_s = 10^{-4}\)</span>
+        <span class="telemetry-metric">LATEX / KATEX ACTIVO</span>
+      </div>
+    </div>
 
-    <!-- TAB 1: CALCULATOR -->
-    <section id="section-calculator" class="tab-section active">
-      <div class="layout-grid">
+    <!-- Global Method/Module Switcher Bar -->
+    <div class="global-module-nav">
+      <div class="module-switch-wrapper">
+        <button id="mod-btn-linear" class="mod-pill active" onclick="switchMainModule('linear')">
+          <span class="mod-pill-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M3 9h18"/>
+              <path d="M3 15h18"/>
+              <path d="M9 3v18"/>
+              <path d="M15 3v18"/>
+            </svg>
+          </span>
+          <span class="mod-pill-content">
+            <span class="mod-pill-title">Sistemas Lineales</span>
+            <span class="mod-pill-desc">Jacobi &amp; Gauss-Seidel</span>
+          </span>
+        </button>
+        <button id="mod-btn-bairstow" class="mod-pill" onclick="switchMainModule('bairstow')">
+          <span class="mod-pill-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h3l3 8 4-16 4 10 2-4h2"/>
+            </svg>
+          </span>
+          <span class="mod-pill-content">
+            <span class="mod-pill-title">Método de Bairstow</span>
+            <span class="mod-pill-desc">Raíces de Polinomios</span>
+          </span>
+        </button>
+        <button id="mod-btn-newton" class="mod-pill" onclick="switchMainModule('newton')">
+          <span class="mod-pill-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <line x1="3.6" y1="15" x2="15" y2="3.6"/>
+              <polyline points="9 9 15 9 15 15"/>
+            </svg>
+          </span>
+          <span class="mod-pill-content">
+            <span class="mod-pill-title">Newton para Sistemas</span>
+            <span class="mod-pill-desc">No Lineal \(\mathbf{F}(x,y)=\mathbf{0}\)</span>
+          </span>
+        </button>
+        <button id="mod-btn-diff" class="mod-pill" onclick="switchMainModule('diff')">
+          <span class="mod-pill-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 19c4-10 8-14 18-14"/>
+              <line x1="4" y1="18" x2="17" y2="5"/>
+              <circle cx="10.5" cy="11.5" r="2.3"/>
+            </svg>
+          </span>
+          <span class="mod-pill-content">
+            <span class="mod-pill-title">Diferenciación Numérica</span>
+            <span class="mod-pill-desc">Progresiva/Regresiva, 3 y 5 Puntos</span>
+          </span>
+        </button>
+        <button id="mod-btn-integ" class="mod-pill" onclick="switchMainModule('integ')">
+          <span class="mod-pill-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4c-2 0-3 1.5-3.4 4.5l-1.2 7c-.4 3-1.4 4.5-3.4 4.5"/>
+              <path d="M4 20h16"/>
+              <path d="M6 14v6"/>
+              <path d="M12 10v10"/>
+              <path d="M18 7v13"/>
+            </svg>
+          </span>
+          <span class="mod-pill-content">
+            <span class="mod-pill-title">Integración Numérica</span>
+            <span class="mod-pill-desc">Trapecio, Simpson, Romberg y Gauss</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODULE 1: LINEAR SYSTEMS (JACOBI & GAUSS-SEIDEL) -->
+    <!-- ============================================== -->
+    <div id="module-linear" class="main-module active">
+      <!-- Header -->
+      <header class="main-header">
+        <div class="badge-tag">MÉTODOS ITERATIVOS DE ÁLGEBRA LINEAL</div>
+        <h1 class="gradient-title">Calculadora de Jacobi y Gauss-Seidel</h1>
+        <p class="subtitle">Resolución paso a paso detallada de sistemas de ecuaciones lineales con rigor formal, verificación de convergencia y precisión de 6 decimales.</p>
+        
+        <nav class="nav-tabs">
+          <button id="tab-calc" class="tab-btn active" onclick="switchTab('calculator')">
+            Calculadora &amp; Solucionador
+          </button>
+          <button id="tab-examples" class="tab-btn" onclick="switchTab('examples')">
+            6 Ejemplos Prácticos
+          </button>
+          <button id="tab-theory" class="tab-btn" onclick="switchTab('theory')">
+            Teoría, Algoritmos y Restricciones
+          </button>
+          <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')">
+            Guía de Uso
+          </button>
+        </nav>
+      </header>
+
+      <!-- TAB 1: CALCULATOR -->
+      <section id="section-calculator" class="tab-section active">
+        <!-- Monitor Didáctico de Fundamentos: Sistemas Lineales -->
+        <div class="method-didactic-monitor">
+          <div class="monitor-main">
+            <div class="monitor-header-row">
+              <span class="monitor-category-tag">Álgebra Lineal Numérica</span>
+              <span class="badge info">Teorema de Convergencia</span>
+            </div>
+            <div class="monitor-formula-display">
+              \[ x_i^{(k+1)} = \frac{1}{a_{ii}} \left[ b_i - \sum_{j \ne i} a_{ij}\, x_j^{(k)} \right] \]
+            </div>
+            <div class="monitor-theorem-text">
+              <strong>Criterio Didáctico de Dominancia Diagonal:</strong> Si \( |a_{ii}| > \sum_{j \ne i} |a_{ij}| \) en cada fila, el radio espectral satisface \( \rho(T) < 1 \), garantizando convergencia incondicional para cualquier semilla \( \mathbf{x}^{(0)} \). Gauss-Seidel sustituye de inmediato las variables recién calculadas, alcanzando la tolerancia en menor número de iteraciones que Jacobi.
+            </div>
+          </div>
+          <div class="monitor-quick-indicators">
+            <div class="indicator-row"><span>Esquema:</span> <span class="indicator-val">Punto Fijo Matricial</span></div>
+            <div class="indicator-row"><span>Rigor:</span> <span class="indicator-val">Precisión 6 decimales</span></div>
+            <div class="indicator-row"><span>Condición:</span> <span class="indicator-val">\( \varepsilon_a \le \text{tol} \;\wedge\; k \ge 6 \)</span></div>
+          </div>
+        </div>
+
+        <div class="layout-grid">
         <!-- Control Sidebar / Setup -->
         <div class="panel glass-card controls-panel">
           <div class="panel-header">
@@ -67,7 +183,7 @@
 
           <div class="config-row">
             <div class="form-group">
-              <label for="matrix-size">Variables ($n$):</label>
+              <label for="matrix-size">Variables (\( n \)):</label>
               <div class="number-stepper">
                 <button type="button" class="stepper-btn" onclick="changeSize(-1)">−</button>
                 <input type="number" id="matrix-size" min="3" max="6" value="3" readonly>
@@ -103,7 +219,7 @@
 
           <div class="config-row">
             <div class="form-group">
-              <label for="tolerance">Tolerancia de Error (&epsilon;):</label>
+              <label for="tolerance">Tolerancia de Error (\( \varepsilon \)):</label>
               <input type="text" id="tolerance" value="0.000001">
               <span class="field-hint">Precisión a 6 decimales</span>
             </div>
@@ -113,7 +229,7 @@
               <div class="select-wrapper">
                 <select id="error-type">
                   <option value="relative">Error Relativo Porcentual (%)</option>
-                  <option value="absolute">Error Absoluto (&Delta;x)</option>
+                  <option value="absolute">Error Absoluto (Δx)</option>
                 </select>
               </div>
             </div>
@@ -143,17 +259,17 @@
         <!-- Matrix Input Card -->
         <div class="panel glass-card matrix-panel">
           <div class="panel-header">
-            <h3>Matriz de Coeficientes ($A$) y Vector Independiente ($b$)</h3>
+            <h3>Matriz de Coeficientes (\( A \)) y Vector Independiente (\( \mathbf{b} \))</h3>
             <div id="dominance-badge" class="badge">Analizando...</div>
           </div>
-          <p class="panel-desc">Ingresa los coeficientes del sistema lineal $A \cdot x = b$. Cada fila representa una ecuación lineal:</p>
+          <p class="panel-desc">Ingresa los coeficientes del sistema lineal \( A\mathbf{x} = \mathbf{b} \). Cada fila representa una ecuación lineal:</p>
 
           <div class="matrix-overflow-container">
             <div id="matrix-inputs-container" class="matrix-grid"></div>
           </div>
 
           <div class="initial-vector-section">
-            <h4>Vector Inicial de Aproximación ($x^{(0)}$)</h4>
+            <h4>Vector Inicial de Aproximación (\( \mathbf{x}^{(0)} \))</h4>
             <div id="initial-vector-container" class="initial-vector-grid"></div>
           </div>
 
@@ -240,35 +356,37 @@
       <div class="theory-container glass-card">
         <article class="theory-article">
           <h2>1. Definición Formal y Descomposición Matricial</h2>
-          <p>Sea un sistema de ecuaciones algebraicas lineales de dimensión $n \times n$ expresado de forma matricial:</p>
-          <div class="formula-callout" style="font-size: 1.1rem;">A <strong>x</strong> = <strong>b</strong>, &nbsp;&nbsp; donde A &isin; &reals;<sup>n &times; n</sup>, &nbsp; <strong>x</strong>, <strong>b</strong> &isin; &reals;<sup>n</sup></div>
-          <p>Para construir una sucesión iterativa convergente {<strong>x</strong><sup>(k)</sup>}, se realiza una partición de la matriz de coeficientes A. La descomposición aditiva clásica es:</p>
-          <div class="formula-callout" style="font-size: 1.1rem;">A = D - L - U</div>
-          <p>donde <strong>D</strong> es la matriz diagonal principal, <strong>-L</strong> es la matriz triangular inferior estricta y <strong>-U</strong> es la matriz triangular superior estricta.</p>
+          <p>Sea un sistema de ecuaciones algebraicas lineales de dimensión \( n \times n \) expresado de forma matricial:</p>
+          <div class="formula-callout">\[ A\mathbf{x} = \mathbf{b}, \qquad A \in \mathbb{R}^{n \times n},\quad \mathbf{x}, \mathbf{b} \in \mathbb{R}^{n} \]</div>
+          <p>Para construir una sucesión iterativa convergente \( \{\mathbf{x}^{(k)}\} \), se realiza una partición de la matriz de coeficientes \( A \). La descomposición aditiva clásica es:</p>
+          <div class="formula-callout">\[ A = D - L - U \]</div>
+          <p>donde \( D \) es la matriz diagonal principal, \( -L \) es la matriz triangular inferior estricta y \( -U \) es la matriz triangular superior estricta.</p>
           
           <hr class="divider">
 
           <h2>2. Método de Jacobi (Resolución Simultánea)</h2>
-          <p>El método asume que det(D) &ne; 0 y reescribe el sistema como D<strong>x</strong> = (L+U)<strong>x</strong> + <strong>b</strong>. Su fórmula de recurrencia vectorial y su Matriz de Iteración (T<sub>J</sub>) son:</p>
-          <div class="formula-callout"><strong>x</strong><sup>(k+1)</sup> = D<sup>-1</sup>(L + U)<strong>x</strong><sup>(k)</sup> + D<sup>-1</sup><strong>b</strong> &nbsp;&nbsp;&rArr;&nbsp;&nbsp; <strong>x</strong><sup>(k+1)</sup> = T<sub>J</sub> <strong>x</strong><sup>(k)</sup> + <strong>c</strong><sub>J</sub></div>
-          <p>En forma escalar, las incógnitas se actualizan de manera paralela usando información <em>exclusiva</em> del paso (k):</p>
-          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = &frac1{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j &ne; i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
+          <p>El método asume que \( \det(D) \ne 0 \) y reescribe el sistema como \( D\mathbf{x} = (L+U)\mathbf{x} + \mathbf{b} \). Su fórmula de recurrencia vectorial y su Matriz de Iteración \( T_J \) son:</p>
+          <div class="formula-callout">\[ \mathbf{x}^{(k+1)} = D^{-1}(L+U)\,\mathbf{x}^{(k)} + D^{-1}\mathbf{b} \;\Longrightarrow\; \mathbf{x}^{(k+1)} = T_J\,\mathbf{x}^{(k)} + \mathbf{c}_J \]
+\[ T_J = D^{-1}(L+U), \qquad \mathbf{c}_J = D^{-1}\mathbf{b} \]</div>
+          <p>En forma escalar, las incógnitas se actualizan de manera paralela usando información <em>exclusiva</em> del paso \( k \):</p>
+          <div class="formula-callout">\[ x_i^{(k+1)} = \frac{1}{a_{ii}} \left[ b_i - \sum_{j \ne i} a_{ij}\, x_j^{(k)} \right], \qquad i = 1, 2, \dots, n \]</div>
 
           <hr class="divider">
 
           <h2>3. Método de Gauss-Seidel (Resolución Sucesiva)</h2>
-          <p>Aprovechando la invertibilidad de la matriz triangular (D - L), evalúa las incógnitas secuencialmente para sustituirlas en tiempo real. Su forma vectorial es:</p>
-          <div class="formula-callout"><strong>x</strong><sup>(k+1)</sup> = (D - L)<sup>-1</sup> U <strong>x</strong><sup>(k)</sup> + (D - L)<sup>-1</sup><strong>b</strong> &nbsp;&nbsp;&rArr;&nbsp;&nbsp; <strong>x</strong><sup>(k+1)</sup> = T<sub>GS</sub> <strong>x</strong><sup>(k)</sup> + <strong>c</strong><sub>GS</sub></div>
+          <p>Aprovechando la invertibilidad de la matriz triangular \( (D - L) \), evalúa las incógnitas secuencialmente para sustituirlas en tiempo real. Su forma vectorial es:</p>
+          <div class="formula-callout">\[ \mathbf{x}^{(k+1)} = (D-L)^{-1} U\,\mathbf{x}^{(k)} + (D-L)^{-1}\mathbf{b} \;\Longrightarrow\; \mathbf{x}^{(k+1)} = T_{GS}\,\mathbf{x}^{(k)} + \mathbf{c}_{GS} \]
+\[ T_{GS} = (D-L)^{-1} U, \qquad \mathbf{c}_{GS} = (D-L)^{-1}\mathbf{b} \]</div>
           <p>Escalarmente, el algoritmo incorpora los valores inmediatamente evaluados:</p>
-          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = &frac1{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j < i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k+1)</sup> - &sum;<sub>j > i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
-          <p><strong>Teorema de Stein-Rosenberg:</strong> Establece empíricamente que si A es una matriz con elementos extradiagonales no positivos y diagonal positiva, entonces &rho;(T<sub>GS</sub>) &le; &rho;(T<sub>J</sub>) &lt; 1. Si ambos convergen, Gauss-Seidel lo hace estrictamente más rápido.</p>
+          <div class="formula-callout">\[ x_i^{(k+1)} = \frac{1}{a_{ii}} \left[ b_i - \sum_{j < i} a_{ij}\, x_j^{(k+1)} - \sum_{j > i} a_{ij}\, x_j^{(k)} \right] \]</div>
+          <p><strong>Teorema de Stein-Rosenberg:</strong> Establece que si \( A \) es una matriz con elementos extradiagonales no positivos y diagonal positiva, entonces \( \rho(T_{GS}) \le \rho(T_J) < 1 \) (o ambos radios espectrales son \( \ge 1 \)). Si ambos convergen, Gauss-Seidel lo hace estrictamente más rápido.</p>
 
           <hr class="divider">
 
           <h2>4. Extensión Numérica: Sobre-Relajación Sucesiva (SOR)</h2>
-          <p>En la computación científica avanzada, Gauss-Seidel se generaliza empleando un factor de relajación escalar &omega; &isin; (0, 2) para alterar la tasa de convergencia asintótica:</p>
-          <div class="formula-callout">x<sub>i</sub><sup>(k+1)</sup> = (1 - &omega;) x<sub>i</sub><sup>(k)</sup> + &frac{&omega;}{a<sub>ii</sub>} &middot; [ b<sub>i</sub> - &sum;<sub>j < i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k+1)</sup> - &sum;<sub>j > i</sub> a<sub>ij</sub> x<sub>j</sub><sup>(k)</sup> ]</div>
-          <p><em>Nota Topológica:</em> Para &omega; = 1, la ecuación SOR colapsa exactamente al método de Gauss-Seidel puro.</p>
+          <p>En la computación científica avanzada, Gauss-Seidel se generaliza empleando un factor de relajación escalar \( \omega \in (0, 2) \) para alterar la tasa de convergencia asintótica:</p>
+          <div class="formula-callout">\[ x_i^{(k+1)} = (1-\omega)\,x_i^{(k)} + \frac{\omega}{a_{ii}} \left[ b_i - \sum_{j < i} a_{ij}\, x_j^{(k+1)} - \sum_{j > i} a_{ij}\, x_j^{(k)} \right] \]</div>
+          <p><em>Nota Topológica:</em> Para \( \omega = 1 \), la ecuación SOR colapsa exactamente al método de Gauss-Seidel puro.</p>
 
           <hr class="divider">
 
@@ -276,19 +394,19 @@
           <div class="restrictions-grid">
             <div class="restriction-box">
               <h4>1. Invertibilidad y Singularidad</h4>
-              <p>El algoritmo colapsa (error por división nula) si existe un autovalor nulo en la diagonal (a<sub>ii</sub> = 0). Computacionalmente se requiere el pivoteo o la permutación estricta de filas antes de iterar.</p>
+              <p>El algoritmo colapsa (error por división nula) si existe un elemento nulo en la diagonal (\( a_{ii} = 0 \)). Computacionalmente se requiere el pivoteo o la permutación estricta de filas antes de iterar.</p>
             </div>
             <div class="restriction-box">
               <h4>2. Discos de Gershgorin y Dominancia (EDD)</h4>
-              <p>El teorema de Gershgorin establece que si la matriz es estrictamente dominante por filas (|a<sub>ii</sub>| > &sum; |a<sub>ij</sub>|), los autovalores iterativos quedarán acotados dentro del plano complejo, forzando convergencia incondicional.</p>
+              <p>El teorema de Gershgorin establece que si la matriz es estrictamente dominante por filas (\( |a_{ii}| > \sum_{j \ne i} |a_{ij}| \)), los autovalores iterativos quedarán acotados dentro del plano complejo, forzando convergencia incondicional.</p>
             </div>
             <div class="restriction-box">
-              <h4>3. Análisis del Radio Espectral &rho;(T)</h4>
-              <p>La condición <strong>necesaria y suficiente</strong> para la estabilidad iterativa es que su radio espectral sea menor que 1: &rho;(T) = max |&lambda;<sub>i</sub>(T)| &lt; 1. La tasa asintótica está dada por R = -ln(&rho;(T)).</p>
+              <h4>3. Análisis del Radio Espectral \( \rho(T) \)</h4>
+              <p>La condición <strong>necesaria y suficiente</strong> para la estabilidad iterativa es que su radio espectral sea menor que 1: \( \rho(T) = \max_i |\lambda_i(T)| < 1 \). La tasa asintótica está dada por \( R = -\ln \rho(T) \).</p>
             </div>
             <div class="restriction-box">
-              <h4>4. Evaluación en Norma Infinito (&infin;)</h4>
-              <p>La tolerancia se valida utilizando la Norma Chebyshev o Norma Máxima || <strong>x</strong><sup>(k+1)</sup> - <strong>x</strong><sup>(k)</sup> ||<sub>&infin;</sub> &lt; &epsilon; garantizando que la perturbación se disipe uniformemente en el hiperespacio.</p>
+              <h4>4. Evaluación en Norma Infinito (\( \infty \))</h4>
+              <p>La tolerancia se valida utilizando la Norma Chebyshev o Norma Máxima \( \left\| \mathbf{x}^{(k+1)} - \mathbf{x}^{(k)} \right\|_\infty < \varepsilon \), garantizando que la perturbación se disipe uniformemente en el hiperespacio.</p>
             </div>
           </div>
         </article>
@@ -308,7 +426,7 @@
           <p>Primero, en el panel lateral izquierdo, define el tamaño de tu matriz (entre 3x3 y 6x6). También puedes cargar uno de los <strong>6 ejemplos prácticos</strong> para ver cómo se llenan los datos automáticamente.</p>
           <ul style="margin-top: 10px; margin-left: 20px; color: #cbd5e1; line-height: 1.6;">
             <li><strong>Iteraciones Mínimas:</strong> Forzará al sistema a calcular al menos esta cantidad de iteraciones (6 por defecto).</li>
-            <li><strong>Tolerancia (&epsilon;):</strong> El programa se detendrá cuando el error sea menor a este valor.</li>
+            <li><strong>Tolerancia (\( \varepsilon \)):</strong> El programa se detendrá cuando el error sea menor a este valor.</li>
             <li><strong>Truncamiento vs Redondeo:</strong> Escoge si quieres que la calculadora corte los números en el 6to decimal exacto o los redondee (recomendamos redondeo para mayor precisión).</li>
           </ul>
 
@@ -333,13 +451,1659 @@
         </article>
       </div>
     </section>
+  </div> <!-- /#module-linear -->
 
-    <!-- Footer -->
-    <footer class="main-footer">
-      <p>Calculadora Didáctica de Métodos Numéricos &bull; Precisión a 6 decimales (0.xxxxxx) &bull; Jacobi &amp; Gauss-Seidel</p>
-    </footer>
-  </div>
+  <!-- ============================================== -->
+  <!-- MODULE 2: BAIRSTOW'S METHOD (POLYNOMIAL ROOTS) -->
+  <!-- ============================================== -->
+  <div id="module-bairstow" class="main-module">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="badge-tag badge-bairstow">RAÍCES DE POLINOMIOS &bull; FACTORIZACIÓN CUADRÁTICA</div>
+      <h1 class="gradient-title">Calculadora del Método de Bairstow</h1>
+      <p class="subtitle">Resolución iterativa de factores cuadráticos y extracción de raíces reales y complejas mediante doble división sintética de segundo orden y Newton-Raphson bidimensional con precisión a 6 decimales.</p>
+      
+      <nav class="nav-tabs">
+        <button id="b-tab-calc" class="tab-btn active" onclick="switchBairstowTab('calc')">
+          Implementación (Calculadora)
+        </button>
+        <button id="b-tab-what" class="tab-btn" onclick="switchBairstowTab('what')">
+          ¿Qué es?
+        </button>
+        <button id="b-tab-when" class="tab-btn" onclick="switchBairstowTab('when')">
+          ¿Cuándo se usa?
+        </button>
+        <button id="b-tab-steps" class="tab-btn" onclick="switchBairstowTab('steps')">
+          Pasos para su ejecución
+        </button>
+        <button id="b-tab-examples" class="tab-btn" onclick="switchBairstowTab('examples')">
+          Ejemplos de uso
+        </button>
+        <button id="b-tab-guide" class="tab-btn" onclick="switchBairstowTab('guide')">
+          Guía de Uso
+        </button>
+      </nav>
+    </header>
 
-  <script src="app.js"></script>
+    <!-- BAIRSTOW TAB 1: IMPLEMENTACIÓN / CALCULATOR -->
+    <section id="b-section-calc" class="tab-section active">
+      <!-- Monitor Didáctico de Fundamentos: Método de Bairstow -->
+      <div class="method-didactic-monitor">
+        <div class="monitor-main">
+          <div class="monitor-header-row">
+            <span class="monitor-category-tag">Factorización Polinomial</span>
+            <span class="badge info" style="background: rgba(245, 158, 11, 0.14); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">Raíces Reales y Complejas</span>
+          </div>
+          <div class="monitor-formula-display">
+            \[ P(x) = \left(x^2 - r x - s\right) Q(x) + b_1 (x - r) + b_0 \]
+          </div>
+          <div class="monitor-theorem-text">
+            <strong>Principio Didáctico de Doble División:</strong> La primera división sintética extrae los residuos \( b_1 \) y \( b_0 \). La segunda evalúa las derivadas parciales \( c_k \) para el Jacobiano \( 2 \times 2 \). Mediante la Regla de Cramer se determinan los incrementos \( \Delta r \) y \( \Delta s \) hasta forzar \( b_1 \to 0 \) y \( b_0 \to 0 \), aislando un factor cuadrático exacto.
+          </div>
+        </div>
+        <div class="monitor-quick-indicators">
+          <div class="indicator-row"><span>Factor:</span> <span class="indicator-val">\( x^2 - rx - s = 0 \)</span></div>
+          <div class="indicator-row"><span>Raíces:</span> <span class="indicator-val">\( \dfrac{r \pm \sqrt{r^2 + 4s}}{2} \)</span></div>
+          <div class="indicator-row"><span>Condición:</span> <span class="indicator-val">\( \varepsilon_r, \varepsilon_s \le \text{tol} \)</span></div>
+        </div>
+      </div>
+
+      <div class="layout-grid">
+        <!-- Control Sidebar / Setup -->
+        <div class="panel glass-card controls-panel">
+          <div class="panel-header">
+            <h3>Configuración de Bairstow</h3>
+            <span class="badge info">Grado 3 a 8</span>
+          </div>
+
+          <!-- Quick Load Selector -->
+          <div class="form-group">
+            <label for="b-example-select">Cargar Ejemplo Predefinido:</label>
+            <div class="select-wrapper">
+              <select id="b-example-select" onchange="loadPresetBairstowExample(this.value)">
+                <option value="">-- Seleccionar un polinomio --</option>
+                <option value="bex1">Ejemplo 1: Polinomio de Chapra (Grado 5 - Raíces Reales y Complejas)</option>
+                <option value="bex2">Ejemplo 2: Raíces Complejas Puras (Grado 4)</option>
+                <option value="bex3">Ejemplo 3: Ecuación Cúbica de Reacción Química (Grado 3)</option>
+                <option value="bex4">Ejemplo 4: Estabilidad y Control de Motores (Grado 4)</option>
+                <option value="bex5">Ejemplo 5: Cuatro Raíces Reales Enteras (Grado 4)</option>
+                <option value="bex6">Ejemplo 6: Dinámica y Resonancia Estructural (Grado 5)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="b-poly-degree">Grado del Polinomio (\( n \)):</label>
+              <div class="number-stepper">
+                <button type="button" class="stepper-btn" onclick="changeBairstowDegree(-1)">−</button>
+                <input type="number" id="b-poly-degree" min="3" max="8" value="5" readonly>
+                <button type="button" class="stepper-btn" onclick="changeBairstowDegree(1)">+</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="b-solve-mode">Modo de Solución:</label>
+              <div class="select-wrapper">
+                <select id="b-solve-mode">
+                  <option value="single" selected>Factor Cuadrático (Paso a Paso)</option>
+                  <option value="full">Deflación Completa (Todas las Raíces)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="b-r0">Valor Inicial \( r_0 \):</label>
+              <input type="number" id="b-r0" value="-1" step="any">
+              <span class="field-hint">Aprox. factor \( x^2 - rx - s \)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="b-s0">Valor Inicial \( s_0 \):</label>
+              <input type="number" id="b-s0" value="-1" step="any">
+              <span class="field-hint">Término independiente</span>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="b-max-iterations">Iteraciones Máximas:</label>
+              <input type="number" id="b-max-iterations" min="1" max="100" value="30">
+              <span class="field-hint">Límite de seguridad</span>
+            </div>
+
+            <div class="form-group">
+              <label for="b-tolerance">Tolerancia de Parada (\( \varepsilon \)):</label>
+              <input type="text" id="b-tolerance" value="0.0001">
+              <span class="field-hint">Parada automática al converger</span>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="b-error-type">Criterio de Error:</label>
+              <div class="select-wrapper">
+                <select id="b-error-type">
+                  <option value="relative" selected>Error Relativo Porcentual (%)</option>
+                  <option value="absolute">Error Absoluto (|Δr|, |Δs|)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="b-decimals-display">Decimales para Mostrar:</label>
+              <div class="select-wrapper">
+                <select id="b-decimals-display">
+                  <option value="4">4 Decimales (0.xxxx)</option>
+                  <option value="6" selected>6 Decimales (0.xxxxxx)</option>
+                  <option value="8">8 Decimales (0.xxxxxxxx)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="btn-b-reset" class="btn btn-secondary" onclick="resetBairstowInputs()" title="Restablecer valores a los iniciales">
+              Restablecer
+            </button>
+            <button id="btn-b-clear" class="btn btn-ghost" onclick="clearBairstowInputs()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Polynomial Input Card -->
+        <div class="panel glass-card matrix-panel">
+          <div class="panel-header">
+            <h3>Coeficientes del Polinomio \( P(x) \)</h3>
+            <div id="b-poly-badge" class="badge info">Polinomio de Grado 5</div>
+          </div>
+          <p class="panel-desc">Ingresa los coeficientes reales \( a_k \) desde el término de mayor grado (\( a_n \)) hasta el término independiente (\( a_0 \)):</p>
+
+          <!-- Mathematical Preview of P(x) -->
+          <div class="poly-preview-card">
+            <div class="poly-preview-label">Visualización Matemática en Vivo:</div>
+            <div id="b-poly-preview" class="poly-preview-math">P(x) = ...</div>
+          </div>
+
+          <!-- Inputs for coefficients an ... a0 -->
+          <div class="matrix-overflow-container">
+            <div id="b-poly-inputs" class="poly-inputs-container"></div>
+          </div>
+
+          <div class="cta-row">
+            <button id="btn-b-solve" class="btn btn-primary btn-lg" onclick="solveBairstow()">
+              Calcular con Método de Bairstow Paso a Paso
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convergence & Validation Banner -->
+      <div id="b-validation-banner" class="validation-banner" style="display: none;"></div>
+
+      <!-- Detailed Step-by-Step Output Section -->
+      <section id="b-results-container" class="results-section" style="display: none;">
+        <div class="results-header glass-card">
+          <div class="summary-top">
+            <div>
+              <span class="badge success" id="b-res-method-badge">Método de Bairstow</span>
+              <h2 id="b-res-status-title">Resultados de Bairstow</h2>
+              <p id="b-res-summary-desc" class="res-desc"></p>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-secondary" onclick="window.print()">Imprimir / Guardar PDF</button>
+            </div>
+          </div>
+
+          <!-- Factor and Roots Card -->
+          <div class="solution-card">
+            <h4>Factor Cuadrático Encontrado (\( x^2 - rx - s = 0 \)):</h4>
+            <div class="b-factor-card">
+              <div class="b-factor-title">Ecuación Cuadrática Reducible:</div>
+              <div id="b-factor-equation" class="b-factor-formula">x² - (r)x - (s) = 0</div>
+              <p id="b-discriminant-info" class="b-factor-desc">Discriminante: &Delta; = r² + 4s</p>
+            </div>
+
+            <h4 style="margin-top: 15px;">Raíces Obtenidas de este Factor:</h4>
+            <div id="b-roots-cards-grid" class="roots-cards-grid"></div>
+
+            <div id="b-deflated-poly-box" style="margin-top: 20px; padding: 14px 18px; background: rgba(15,23,42,0.6); border-radius: 8px; border: 1px dashed var(--border-glass);">
+              <h5 style="color: #93c5fd; margin-bottom: 6px; font-size: 0.95rem;">Polinomio Cociente Resultante \( Q(x) \) (Deflación):</h5>
+              <div id="b-deflated-poly" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: #f1f5f9;"></div>
+            </div>
+
+            <!-- Complete roots if deflation was selected -->
+            <div id="b-all-roots-container" style="display: none; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-glass);">
+              <h4 style="color: #a7f3d0; margin-bottom: 12px;">Todas las Raíces del Polinomio Completo \( P(x) \) (Deflación Total):</h4>
+              <div id="b-all-roots-grid" class="roots-cards-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulas desglosadas por cada iteración -->
+        <div class="step-controls-bar">
+          <div class="step-toggle-title">
+            <h3>Desglose Detallado de Cada Iteración (Paso a Paso)</h3>
+            <p>Se exhiben la primera división sintética (coeficientes \( b_k \)), la segunda división sintética (derivadas \( c_k \)), el sistema lineal \( 2 \times 2 \) de Newton y el cálculo de \( \Delta r \) y \( \Delta s \).</p>
+          </div>
+          <div class="toggle-buttons">
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllBairstowSteps(true)">Expandir Todos</button>
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllBairstowSteps(false)">Colapsar Todos</button>
+          </div>
+        </div>
+
+        <div id="b-step-by-step-cards" class="step-cards-list"></div>
+
+        <!-- Master Table of Iterations -->
+        <div class="panel glass-card table-panel">
+          <div class="panel-header">
+            <h3>Tabla Resumen de Todas las Iteraciones de Bairstow</h3>
+            <span id="b-table-badge-precision" class="badge info">Precisión a 6 decimales (0.xxxxxx)</span>
+          </div>
+          <div class="table-responsive">
+            <table id="b-iterations-table" class="academic-summary-table">
+              <thead>
+                <tr class="summary-group-header">
+                  <th rowspan="2" class="col-iter">Iteración (k)</th>
+                  <th colspan="2" class="group-header group-approx">Aproximaciones</th>
+                  <th colspan="2" class="group-header group-res">Residuos a Anular</th>
+                  <th colspan="2" class="group-header group-inc">Incrementos (\( \Delta \))</th>
+                  <th colspan="2" class="group-header group-err">Errores Estimados</th>
+                </tr>
+                <tr class="summary-sub-header">
+                  <th class="col-num">\( r \)</th>
+                  <th class="col-num">\( s \)</th>
+                  <th class="col-num">\( b_1 \)</th>
+                  <th class="col-num">\( b_0 \)</th>
+                  <th class="col-num">\( \Delta r \)</th>
+                  <th class="col-num">\( \Delta s \)</th>
+                  <th class="col-num" id="b-th-err-r">\( \varepsilon_r \) (%)</th>
+                  <th class="col-num" id="b-th-err-s">\( \varepsilon_s \) (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tarjeta de Conclusión / Resultado Global al Pie de la Tabla -->
+          <div id="b-summary-conclusion" class="academic-conclusion-card" style="display: none;"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- BAIRSTOW TAB 2: ¿QUÉ ES? -->
+    <section id="b-section-what" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>¿Qué es el Método de Bairstow?</h2>
+          <p>El <strong>Método de Bairstow</strong> es un algoritmo numérico iterativo de alta potencia propuesto por el matemático e ingeniero aeronáutico británico <strong>Leonard Bairstow en 1914</strong>. Su propósito primordial es encontrar simultáneamente las raíces (tanto <strong>reales</strong> como <strong>complejas conjugadas</strong>) de un polinomio con coeficientes reales.</p>
+          
+          <div class="formula-callout">
+            \[ P(x) = a_n x^n + a_{n-1} x^{n-1} + \cdots + a_1 x + a_0, \qquad a_n \ne 0,\ a_i \in \mathbb{R} \]
+          </div>
+
+          <p>A diferencia de métodos de una sola variable como Newton-Raphson o la Bisección (que solo pueden seguir trayectorias sobre el eje real y requieren aritmética compleja especializada para converger a números imaginarios), Bairstow ataca el problema mediante una <strong>descomposición cuadrática real</strong>:</p>
+
+          <div class="formula-callout">
+            \[ P(x) = \left(x^2 - r x - s\right) Q(x) + R(x) \]
+          </div>
+
+          <p>donde:</p>
+          <ul style="margin-left: 24px; color: #cbd5e1; line-height: 1.8;">
+            <li>\( x^2 - rx - s \) es un factor cuadrático de prueba con parámetros reales \( r \) y \( s \).</li>
+            <li>\( Q(x) \) es el polinomio cociente de grado \( n-2 \): \( Q(x) = b_n x^{n-2} + b_{n-1} x^{n-3} + \cdots + b_2 \).</li>
+            <li>\( R(x) = b_1 (x - r) + b_0 \) es el residuo lineal de la división sintética de segundo orden.</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h2>El Fundamento de los Factores Cuadráticos</h2>
+          <p>Por el <em>Teorema Fundamental del Álgebra</em>, toda raíz compleja de un polinomio con coeficientes estrictamente reales siempre se presenta en <strong>pares conjugados</strong>:</p>
+          <div class="formula-callout">
+            \[ x_{1,2} = \alpha \pm \beta i \]
+          </div>
+          <p>Al multiplicar los factores lineales correspondientes a ambas raíces conjugadas:</p>
+          <div class="formula-callout">
+            \[ \bigl(x - (\alpha + \beta i)\bigr)\bigl(x - (\alpha - \beta i)\bigr) = x^2 - 2\alpha x + \left(\alpha^2 + \beta^2\right) \]
+          </div>
+          <p>Observa que los coeficientes resultantes son <strong>estrictamente números reales</strong>. Comparando con \( x^2 - rx - s \), identificamos directamente:</p>
+          <div class="formula-callout">
+            \[ r = 2\alpha, \qquad s = -\left(\alpha^2 + \beta^2\right) \]
+          </div>
+          <p>¡Este es el corazón del método! Al buscar los números reales \( r \) y \( s \), Bairstow <strong>elimina por completo la necesidad de operar con números imaginarios</strong> durante todo el proceso iterativo.</p>
+
+          <hr class="divider">
+
+          <h2>La Gran Aportación de Bairstow: Derivadas sin Álgebra Simbólica</h2>
+          <p>Para lograr que el factor cuadrático divida exactamente al polinomio, los dos residuos deben anularse de forma simultánea:</p>
+          <div class="formula-callout">
+            \[ b_1(r, s) = 0 \qquad \text{y} \qquad b_0(r, s) = 0 \]
+          </div>
+          <p>Esto representa un <strong>sistema no lineal de dos ecuaciones con dos incógnitas (\( r \), \( s \))</strong>. Para resolverlo, Bairstow aplica el método de Newton-Raphson bidimensional. La genialidad de Leonard Bairstow consistió en demostrar que <strong>las 4 derivadas parciales de la matriz Jacobiana</strong> se obtienen repitiendo exactamente la misma división sintética sobre los coeficientes \( b_k \), generando un segundo conjunto de números \( c_k \):</p>
+          <div class="formula-callout">
+            \[ \frac{\partial b_1}{\partial r} = c_2, \qquad \frac{\partial b_1}{\partial s} = c_3, \qquad \frac{\partial b_0}{\partial r} = c_1, \qquad \frac{\partial b_0}{\partial s} = c_2 \]
+          </div>
+          <p>De este modo, se resuelve un simple sistema lineal \( 2 \times 2 \) mediante la Regla de Cramer en cada iteración sin costo computacional elevado.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- BAIRSTOW TAB 3: ¿CUÁNDO SE USA? -->
+    <section id="b-section-when" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>¿Cuándo se usa el Método de Bairstow?</h2>
+          <p>El Método de Bairstow es la técnica predilecta en ingeniería y matemáticas aplicadas cuando se requiere calcular <strong>todas las raíces de un polinomio de grado alto (\( n \ge 3 \))</strong>, especialmente cuando se sospecha la presencia de <strong>raíces complejas conjugadas</strong>.</p>
+
+          <div class="restrictions-grid">
+            <div class="restriction-box">
+              <h4>1. Ecuaciones Características en Teoría de Control</h4>
+              <p>En el diseño de sistemas de control retroalimentados (robótica, aeroespacial, procesos químicos), la estabilidad se analiza determinando los polos de la función de transferencia a lazo cerrado en el plano \( s \). Las raíces con parte real negativa garantizan estabilidad asintótica, mientras que la parte imaginaria define la frecuencia natural de oscilación.</p>
+            </div>
+
+            <div class="restriction-box">
+              <h4>2. Vibraciones Mecánicas y Análisis Estructural</h4>
+              <p>Al modelar sistemas con múltiples grados de libertad (edificios sismo-resistentes, chasis automotrices, puentes colgantes), el determinante del sistema dinámico \( \left| K - \omega^2 M \right| = 0 \) genera un polinomio característico. Sus raíces complejas definen la amortiguación crítica y las frecuencias modales de resonancia destructiva.</p>
+            </div>
+
+            <div class="restriction-box">
+              <h4>3. Circuitos Eléctricos y Redes RLC de Orden Superior</h4>
+              <p>Los transitorios de voltaje y corriente en filtros analógicos (Butterworth, Chebyshev) y líneas de transmisión se expresan como polinomios diferenciales. Las raíces cuadráticas indican si la respuesta transitoria es sobreamortiguada (raíces reales distintas) o subamortiguada y resonante (raíces complejas conjugadas).</p>
+            </div>
+
+            <div class="restriction-box">
+              <h4>4. Evitar Aritmética Compleja Intermedia</h4>
+              <p>Métodos como Newton-Raphson univariable requieren evaluar derivadas complejas y realizar divisiones en \( \mathbb{C} \). Bairstow opera únicamente con números reales de coma flotante, evitando la sobrecarga algorítmica y los errores de redondeo en partes imaginarias intermedias.</p>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <h2>Comparativa con Otros Métodos Numéricos de Raíces</h2>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>¿Encuentra Raíces Complejas?</th>
+                  <th>Aritmética Requerida</th>
+                  <th>Velocidad de Convergencia</th>
+                  <th>Riesgos Principales</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Método de Bairstow</strong></td>
+                  <td><span class="badge success">Sí (en pares)</span></td>
+                  <td>Estrictamente Real (\( \mathbb{R} \))</td>
+                  <td>Cuadrática (cerca de la raíz)</td>
+                  <td>Sensible a valores iniciales \( (r_0, s_0) \); determinante nulo si \( c_2^2 - c_1 c_3 = 0 \).</td>
+                </tr>
+                <tr>
+                  <td><strong>Newton-Raphson</strong></td>
+                  <td>Solo si se inicia con semilla compleja</td>
+                  <td>Requiere Números Complejos (\( \mathbb{C} \))</td>
+                  <td>Cuadrática</td>
+                  <td>Puede diverger a infinito si \( f'(x) \approx 0 \) o entrar en ciclos caóticos.</td>
+                </tr>
+                <tr>
+                  <td><strong>Método de Müller</strong></td>
+                  <td><span class="badge success">Sí</span></td>
+                  <td>Requiere Números Complejos (\( \mathbb{C} \))</td>
+                  <td>Superlineal (\( \approx 1.84 \))</td>
+                  <td>Aritmética compleja en las 3 parábolas de interpolación.</td>
+                </tr>
+                <tr>
+                  <td><strong>Bisección / Falsa Posición</strong></td>
+                  <td><span class="badge danger">No</span></td>
+                  <td>Estrictamente Real (\( \mathbb{R} \))</td>
+                  <td>Lineal (Lenta)</td>
+                  <td>Incapaz de detectar raíces complejas o raíces reales de multiplicidad par.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- BAIRSTOW TAB 4: PASOS PARA SU EJECUCIÓN -->
+    <section id="b-section-steps" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>Pasos Rigurosos para la Ejecución del Método de Bairstow</h2>
+          <p>Para resolver cualquier polinomio \( P(x) = a_n x^n + \cdots + a_0 \) con precisión garantizada, se sigue el siguiente protocolo algorítmico matemático:</p>
+
+          <hr class="divider">
+
+          <h3>Paso 1: Planteamiento y Elección de Valores Iniciales</h3>
+          <p>Se define el factor cuadrático objetivo \( x^2 - rx - s \). Se eligen aproximaciones iniciales para \( r \) y \( s \) (valores estándar típicos: \( r_0 = -1,\ s_0 = -1 \) o \( r_0 = 0.5,\ s_0 = 0.5 \)).</p>
+
+          <hr class="divider">
+
+          <h3>Paso 2: Primera División Sintética (Cálculo del Vector \( \mathbf{b} \))</h3>
+          <p>Se evalúan los coeficientes del cociente \( Q(x) \) y los residuos de mayor a menor grado mediante las siguientes ecuaciones de recurrencia sintética:</p>
+          <div class="formula-callout">
+            \[ \begin{aligned}
+            b_n &= a_n \\
+            b_{n-1} &= a_{n-1} + r\, b_n \\
+            b_k &= a_k + r\, b_{k+1} + s\, b_{k+2}, \qquad k = n-2,\, n-3,\, \dots,\, 0
+            \end{aligned} \]
+          </div>
+          <p>Los términos \( b_1 \) y \( b_0 \) corresponden a los residuos lineales. Si ambos son iguales a 0 (dentro de la tolerancia \( \varepsilon \)), el factor cuadrático es exacto.</p>
+
+          <hr class="divider">
+
+          <h3>Paso 3: Segunda División Sintética (Cálculo del Vector \( \mathbf{c} \))</h3>
+          <p>Para determinar la rapidez con la que varían los residuos con respecto a \( r \) y \( s \), se realiza una segunda división sintética idéntica, pero usando los coeficientes \( b_k \) como entrada:</p>
+          <div class="formula-callout">
+            \[ \begin{aligned}
+            c_n &= b_n \\
+            c_{n-1} &= b_{n-1} + r\, c_n \\
+            c_k &= b_k + r\, c_{k+1} + s\, c_{k+2}, \qquad k = n-2,\, n-3,\, \dots,\, 1
+            \end{aligned} \]
+          </div>
+          <p>Se identifican las derivadas parciales de la matriz Jacobiana:</p>
+          <div class="formula-callout">
+            \[ \frac{\partial b_1}{\partial r} = c_2, \qquad \frac{\partial b_1}{\partial s} = c_3, \qquad \frac{\partial b_0}{\partial r} = c_1, \qquad \frac{\partial b_0}{\partial s} = c_2 \]
+          </div>
+
+          <hr class="divider">
+
+          <h3>Paso 4: Formulación y Solución del Sistema Lineal \( 2 \times 2 \)</h3>
+          <p>Se plantea el sistema de corrección de Newton-Raphson:</p>
+          <div class="formula-callout">
+            \[ \begin{bmatrix} c_2 & c_3 \\ c_1 & c_2 \end{bmatrix} \begin{bmatrix} \Delta r \\ \Delta s \end{bmatrix} = \begin{bmatrix} -b_1 \\ -b_0 \end{bmatrix} \]
+          </div>
+          <p>Calculando el determinante principal \( D \):</p>
+          <div class="formula-callout">
+            \[ D = \det\begin{bmatrix} c_2 & c_3 \\ c_1 & c_2 \end{bmatrix} = c_2^2 - c_1 c_3 \]
+          </div>
+          <p>Si \( D \ne 0 \), los incrementos se obtienen directamente mediante la <strong>Regla de Cramer</strong>:</p>
+          <div class="formula-callout">
+            \[ \Delta r = \frac{-b_1 c_2 + b_0 c_3}{D}, \qquad \Delta s = \frac{-b_0 c_2 + b_1 c_1}{D} \]
+          </div>
+
+          <hr class="divider">
+
+          <h3>Paso 5: Actualización y Criterio de Parada</h3>
+          <p>Se actualizan los valores de \( r \) y \( s \) para la siguiente iteración:</p>
+          <div class="formula-callout">
+            \[ r^{(k)} = r^{(k-1)} + \Delta r, \qquad s^{(k)} = s^{(k-1)} + \Delta s \]
+          </div>
+          <p>Se computan los errores porcentuales relativos aproximados:</p>
+          <div class="formula-callout">
+            \[ \varepsilon_r = \left| \frac{\Delta r}{r^{(k)}} \right| \cdot 100\%, \qquad \varepsilon_s = \left| \frac{\Delta s}{s^{(k)}} \right| \cdot 100\% \]
+          </div>
+          <p>El algoritmo finaliza cuando \( \max(\varepsilon_r, \varepsilon_s) \le \text{tol} \) habiendo cumplido el <strong>mínimo obligatorio de 6 iteraciones</strong>.</p>
+
+          <hr class="divider">
+
+          <h3>Paso 6: Extracción de las Raíces Cuadráticas</h3>
+          <p>Una vez alcanzada la convergencia, las raíces del factor cuadrático \( x^2 - rx - s = 0 \) se evalúan mediante la fórmula resolvente:</p>
+          <div class="formula-callout">
+            \[ x_{1,2} = \frac{r \pm \sqrt{r^2 + 4s}}{2} \]
+          </div>
+          <ul style="margin-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>Si \( r^2 + 4s \ge 0 \):</strong> Ambas raíces son <strong>reales</strong>.</li>
+            <li><strong>Si \( r^2 + 4s < 0 \):</strong> Ambas raíces son <strong>complejas conjugadas</strong>: \( x_{1,2} = \dfrac{r}{2} \pm \dfrac{i}{2}\sqrt{-(r^2 + 4s)} \).</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h3>Paso 7: Deflación Sintética Polinomial</h3>
+          <p>Para hallar las raíces restantes del polinomio original, se reduce su grado a \( n-2 \) tomando como nuevos coeficientes los valores \( b_n, b_{n-1}, \dots, b_2 \) calculados en la última iteración convergente. Si el polinomio cociente restante es de grado 2, se resuelve analíticamente; si es de grado 1, se despeja de inmediato; si es de grado \( \ge 3 \), se repite el método de Bairstow.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- BAIRSTOW TAB 5: EJEMPLOS DE USO -->
+    <section id="b-section-examples" class="tab-section">
+      <div class="examples-header glass-card">
+        <h2>Catálogo de 6 Ejemplos Prácticos del Método de Bairstow</h2>
+        <p>Polinomios de referencia académica y de ingeniería para contrastar convergencia, raíces complejas puras, raíces reales enteras y deflación completa.</p>
+      </div>
+
+      <div class="examples-grid" id="b-examples-cards-grid">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- BAIRSTOW TAB 6: GUÍA DE USO -->
+    <section id="b-section-guide" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>Guía Rápida: Cómo usar la Calculadora de Bairstow</h2>
+          <p>Aprende a configurar tu polinomio y explorar el desglose paso a paso de factores cuadráticos sin errores.</p>
+
+          <hr class="divider">
+
+          <h3>1. Configurar el Grado e Ingresar Coeficientes</h3>
+          <p>Selecciona el grado del polinomio (n entre 3 y 8) con los botones <strong>+</strong> y <strong>−</strong>. En la tarjeta derecha, ingresa los coeficientes numéricos \( a_k \). La calculadora generará automáticamente la vista previa matemática formateada en tiempo real.</p>
+
+          <hr class="divider">
+
+          <h3>2. Selección de Valores Iniciales \( (r_0, s_0) \)</h3>
+          <p>El Método de Bairstow requiere una semilla cuadrática inicial. Valores recomendados:</p>
+          <ul style="margin-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>\( r_0 = -1,\ s_0 = -1 \):</strong> Excelente punto de partida para la mayoría de polinomios estándar (utilizado en los textos de Chapra y Canale).</li>
+            <li><strong>\( r_0 = 0.5,\ s_0 = 0.5 \):</strong> Recomendado cuando el término independiente es positivo y se buscan oscilaciones subamortiguadas.</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h3>3. Modo Factor Único vs Deflación Completa</h3>
+          <p>En el selector "Modo de Solución":</p>
+          <ul style="margin-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>Factor Cuadrático (Paso a Paso):</strong> Muestra con máximo rigor pedagógico cada división sintética y tabla matricial del primer factor cuadrático encontrado.</li>
+            <li><strong>Deflación Completa:</strong> Además del paso a paso del factor principal, calcula de manera sucesiva <strong>todas las n raíces del polinomio</strong> clasificándolas en reales y complejas.</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h3>4. Cómo interpretar las tablas sintéticas de cada iteración</h3>
+          <p>Al hacer clic en cualquier tarjeta de iteración:</p>
+          <ul style="margin-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>Tabla b (Primera división):</strong> Las dos últimas columnas son \( b_1 \) y \( b_0 \). El objetivo iterativo es que ambos lleguen a cero.</li>
+            <li><strong>Tabla c (Segunda división):</strong> Genera las cuatro derivadas parciales que alimentan el sistema \( 2 \times 2 \).</li>
+            <li><strong>Botón "Ver desglose aritmético":</strong> Te muestra cómo se sumó y multiplicó cada celda de forma interna para que puedas verificar tu trabajo a mano.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </div> <!-- /#module-bairstow -->
+
+  <!-- ============================================== -->
+  <!-- MODULE 3: NEWTON'S METHOD FOR SYSTEMS          -->
+  <!-- ============================================== -->
+  <div id="module-newton" class="main-module">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="badge-tag badge-newton">MÉTODO DE NEWTON PARA SISTEMAS NO LINEALES</div>
+      <h1 class="gradient-title">Calculadora del Método de Newton para Sistemas</h1>
+      <p class="subtitle">Resolución paso a paso de sistemas de ecuaciones no lineales <strong>F(x) = 0</strong> mediante la Matriz Jacobiana J(x), derivadas parciales, determinantes y corrección vectorial de incrementos.</p>
+      
+      <nav class="nav-tabs">
+        <button id="n-tab-calc" class="tab-btn active" onclick="switchNewtonTab('calc')">
+          Implementación (Calculadora)
+        </button>
+        <button id="n-tab-what" class="tab-btn" onclick="switchNewtonTab('what')">
+          ¿Qué es?
+        </button>
+        <button id="n-tab-when" class="tab-btn" onclick="switchNewtonTab('when')">
+          ¿Cuándo se usa?
+        </button>
+        <button id="n-tab-steps" class="tab-btn" onclick="switchNewtonTab('steps')">
+          Pasos del Método
+        </button>
+        <button id="n-tab-examples" class="tab-btn" onclick="switchNewtonTab('examples')">
+          6 Ejemplos Curados
+        </button>
+        <button id="n-tab-guide" class="tab-btn" onclick="switchNewtonTab('guide')">
+          Guía de Uso
+        </button>
+      </nav>
+    </header>
+
+    <!-- NEWTON TAB 1: IMPLEMENTACIÓN / CALCULATOR -->
+    <section id="n-section-calc" class="tab-section active">
+      <!-- Monitor Didáctico de Fundamentos: Newton para Sistemas -->
+      <div class="method-didactic-monitor">
+        <div class="monitor-main">
+          <div class="monitor-header-row">
+            <span class="monitor-category-tag">Sistemas de Ecuaciones No Lineales</span>
+            <span class="badge info" style="background: rgba(6, 182, 212, 0.16); color: #22d3ee; border-color: rgba(34, 211, 238, 0.35);">Matriz Jacobiana &amp; Convergencia Cuadrática</span>
+          </div>
+          <div class="monitor-formula-display">
+            \[ J(x_k, y_k)\begin{bmatrix}\Delta x \\ \Delta y\end{bmatrix} = -\begin{bmatrix}f_1(x_k, y_k) \\ f_2(x_k, y_k)\end{bmatrix} \implies \begin{cases} x_{k+1} = x_k + \Delta x \\ y_{k+1} = y_k + \Delta y \end{cases} \]
+          </div>
+          <div class="monitor-theorem-text">
+            <strong>Aproximación Vectorial Tangencial Multivariable:</strong> Generaliza el método escalar truncando la Serie de Taylor en $\mathbb{R}^2$ en su primer término lineal: $\mathbf{F}(\mathbf{x}_k) + J(\mathbf{x}_k)\Delta\mathbf{x} \approx \mathbf{0}$. En cada iteración se evalúan las funciones $f_1, f_2$, se construye la Matriz Jacobiana de derivadas parciales $J_{ij} = \frac{\partial f_i}{\partial x_j}$, se verifica que $\det(J) \neq 0$ y se resuelven los incrementos $(\Delta x, \Delta y)$ actualizando vectorialmente el punto. Posee convergencia cuadrática local.
+          </div>
+        </div>
+        <div class="monitor-quick-indicators">
+          <div class="indicator-row"><span>Orden:</span> <span class="indicator-val">Cuadrático \(O(\|\mathbf{e}\|^2)\)</span></div>
+          <div class="indicator-row"><span>Jacobiano:</span> <span class="indicator-val">Matriz \(2\times 2\) Invertible</span></div>
+          <div class="indicator-row"><span>Condición:</span> <span class="indicator-val">\(\det(J) \ne 0 \;\bullet\; \varepsilon_a \le \text{tol}\)</span></div>
+        </div>
+      </div>
+
+      <div class="layout-grid">
+        <!-- Control Sidebar / Setup -->
+        <div class="panel glass-card controls-panel">
+          <div class="panel-header">
+            <h3>Configuración del Sistema No Lineal</h3>
+            <span class="badge info" style="background: rgba(6, 182, 212, 0.16); color: #22d3ee; border-color: rgba(34, 211, 238, 0.35);">No Lineal F(x, y) = 0</span>
+          </div>
+          <p class="panel-desc" style="margin: 4px 0 14px; font-size: 0.82rem; color: #a1a1aa;">
+            Parámetros de iteración y semillas vectoriales (x₀, y₀) para el Método de Newton con Matriz Jacobiana (distinto al álgebra lineal de Jacobi / Gauss-Seidel).
+          </p>
+
+          <!-- Quick Load Selector -->
+          <div class="form-group">
+            <label for="n-example-select">Cargar Ejemplo Predefinido:</label>
+            <div class="select-wrapper">
+              <select id="n-example-select" onchange="loadPresetNewtonExample(this.value)">
+                <option value="">-- Seleccionar un sistema --</option>
+                <option value="nex1" selected>Ejemplo 1: Sistema Acoplado de Chapra (Cinética Química)</option>
+                <option value="nex2">Ejemplo 2: Intersección Geométrica Círculo y Parábola</option>
+                <option value="nex3">Ejemplo 3: Sistema Clásico de Himmelblau (Optimización)</option>
+                <option value="nex4">Ejemplo 4: Intersección Elipse y Exponencial Trascendente</option>
+                <option value="nex5">Ejemplo 5: Cinemática Trascendente y Armónicos Trigonométricos</option>
+                <option value="nex6">Ejemplo 6: Red Eléctrica con Diodos Semiconductores</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="n-x0">Semilla Inicial x₀:</label>
+              <input type="number" id="n-x0" value="1.5" step="any">
+              <span class="field-hint">Coordenada inicial x</span>
+            </div>
+
+            <div class="form-group">
+              <label for="n-y0">Semilla Inicial y₀:</label>
+              <input type="number" id="n-y0" value="3.5" step="any">
+              <span class="field-hint">Coordenada inicial y</span>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="n-max-iterations">Iteraciones Máximas:</label>
+              <input type="number" id="n-max-iterations" min="1" max="100" value="30">
+              <span class="field-hint">Límite de seguridad</span>
+            </div>
+
+            <div class="form-group">
+              <label for="n-tolerance">Tolerancia de Parada (\( \varepsilon \)):</label>
+              <input type="text" id="n-tolerance" value="0.0001">
+              <span class="field-hint">Criterio de convergencia</span>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="n-error-type">Criterio de Error:</label>
+              <div class="select-wrapper">
+                <select id="n-error-type">
+                  <option value="relative" selected>Error Relativo Porcentual (%)</option>
+                  <option value="absolute">Error Absoluto (|&Delta;|)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="n-decimals-display">Decimales para Mostrar:</label>
+              <div class="select-wrapper">
+                <select id="n-decimals-display">
+                  <option value="4">4 Decimales (0.xxxx)</option>
+                  <option value="6" selected>6 Decimales (0.xxxxxx)</option>
+                  <option value="8">8 Decimales (0.xxxxxxxx)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="btn-n-reset" class="btn btn-secondary" onclick="resetNewtonInputs()" title="Restablecer valores a los iniciales">
+              Restablecer
+            </button>
+            <button id="btn-n-clear" class="btn btn-ghost" onclick="clearNewtonInputs()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- System Equations & Derivatives Card -->
+        <div class="panel glass-card matrix-panel">
+          <div class="panel-header">
+            <h3>Ecuaciones del Sistema No Lineal</h3>
+            <div class="badge info" style="background: rgba(6, 182, 212, 0.16); color: #22d3ee; border-color: rgba(34, 211, 238, 0.35);">Sistema 2&times;2</div>
+          </div>
+          <p class="panel-desc">Ingresa las dos funciones $f_1(x, y) = 0$ y $f_2(x, y) = 0$. Las derivadas parciales de la matriz Jacobiana se calculan automáticamente con diferenciación finita de alta precisión o puedes especificarlas analíticamente de forma opcional:</p>
+
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="n-f1" style="font-weight: 600; color: #f4f4f5;">Ecuación 1 &bull; f₁(x, y) = 0:</label>
+            <input type="text" id="n-f1" value="x^2 + x*y - 10" placeholder="Ej: x^2 + x*y - 10" oninput="updateNewtonFnPreview()" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; padding: 10px 14px; background: #141416; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: #f4f4f5; width: 100%;">
+          </div>
+
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="n-f2" style="font-weight: 600; color: #f4f4f5;">Ecuación 2 &bull; f₂(x, y) = 0:</label>
+            <input type="text" id="n-f2" value="y + 3*x*y^2 - 57" placeholder="Ej: y + 3*x*y^2 - 57" oninput="updateNewtonFnPreview()" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; padding: 10px 14px; background: #141416; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: #f4f4f5; width: 100%;">
+            <span class="field-hint">Sintaxis admitida: +, -, *, /, ^ (potencias), exp() o e^x, ln(), sin(), cos(), tan(), sqrt(). Multiplicación implícita permitida: 2x, 3y, xy.</span>
+          </div>
+
+          <!-- Collapsible Optional Derivatives -->
+          <details style="margin-top: 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 14px;">
+            <summary style="cursor: pointer; color: #22d3ee; font-weight: 600; font-size: 0.9rem;">
+              Derivadas Parciales Analíticas del Jacobiano (Opcional)
+            </summary>
+            <div style="margin-top: 10px; font-size: 0.82rem; color: #94a3b8; margin-bottom: 8px;">
+              Si se dejan vacías, la calculadora las evaluará automáticamente con el esquema centrado de alta precisión $O(h^2)$.
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div>
+                <label for="n-df1-dx" style="font-size: 0.82rem; color: #a1a1aa;">\(\dfrac{\partial f_1}{\partial x}\):</label>
+                <input type="text" id="n-df1-dx" placeholder="Automático" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; background: #18181b; border: 1px solid var(--border-subtle); color: #cbd5e1; border-radius: 4px;">
+              </div>
+              <div>
+                <label for="n-df1-dy" style="font-size: 0.82rem; color: #a1a1aa;">\(\dfrac{\partial f_1}{\partial y}\):</label>
+                <input type="text" id="n-df1-dy" placeholder="Automático" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; background: #18181b; border: 1px solid var(--border-subtle); color: #cbd5e1; border-radius: 4px;">
+              </div>
+              <div>
+                <label for="n-df2-dx" style="font-size: 0.82rem; color: #a1a1aa;">\(\dfrac{\partial f_2}{\partial x}\):</label>
+                <input type="text" id="n-df2-dx" placeholder="Automático" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; background: #18181b; border: 1px solid var(--border-subtle); color: #cbd5e1; border-radius: 4px;">
+              </div>
+              <div>
+                <label for="n-df2-dy" style="font-size: 0.82rem; color: #a1a1aa;">\(\dfrac{\partial f_2}{\partial y}\):</label>
+                <input type="text" id="n-df2-dy" placeholder="Automático" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; background: #18181b; border: 1px solid var(--border-subtle); color: #cbd5e1; border-radius: 4px;">
+              </div>
+            </div>
+          </details>
+
+          <!-- Mathematical Preview Card -->
+          <div class="poly-preview-card" style="margin-top: 16px;">
+            <div class="poly-preview-label">Visualización en Vivo del Sistema:</div>
+            <div id="n-fn-preview" class="poly-preview-math" style="display: flex; flex-direction: column; gap: 4px;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Iteration formula highlight -->
+          <div style="margin-top: 14px; padding: 10px 16px; background: rgba(0,0,0,0.3); border-left: 3px solid #06b6d4; border-radius: 4px; font-size: 0.92rem; color: #cbd5e1;">
+            Fórmula Matricial: &nbsp; <strong style="color: #22d3ee;">\( J(x_k, y_k)\begin{bmatrix}\Delta x \\ \Delta y\end{bmatrix} = -\begin{bmatrix}f_1(x_k, y_k) \\ f_2(x_k, y_k)\end{bmatrix} \)</strong>
+          </div>
+
+          <div class="cta-row" style="margin-top: 20px;">
+            <button id="btn-n-solve" class="btn btn-primary btn-lg" onclick="solveNewtonSystem()" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); border-color: #06b6d4;">
+              Calcular con Método de Newton para Sistemas Paso a Paso
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convergence & Validation Banner -->
+      <div id="n-validation-banner" class="validation-banner" style="display: none;"></div>
+
+      <!-- Detailed Step-by-Step Output Section -->
+      <section id="n-results-container" class="results-section" style="display: none;">
+        <div class="results-header glass-card">
+          <div class="summary-top">
+            <div>
+              <span class="badge success" id="n-res-method-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.4);">Método de Newton para Sistemas</span>
+              <h2 id="n-res-status-title">Resultados del Sistema No Lineal</h2>
+              <p id="n-res-summary-desc" class="res-desc"></p>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-secondary" onclick="window.print()">Imprimir / Guardar PDF</button>
+            </div>
+          </div>
+
+          <!-- Solution Highlight Card -->
+          <div class="solution-card" style="margin-top: 16px;">
+            <h4 style="color: #22d3ee; margin-bottom: 12px;">Vector Solución de Aproximación [x*, y*]<sup>T</sup>:</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch;">
+              <div style="flex: 1; min-width: 240px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.3);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Valores de las Raíces:</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #34d399; font-family: 'JetBrains Mono', monospace; margin-top: 6px; line-height: 1.4;">
+                  x* &approx; <span id="n-res-root-x">0</span><br>
+                  y* &approx; <span id="n-res-root-y">0</span>
+                </div>
+              </div>
+
+              <div style="flex: 1; min-width: 240px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Residuos de las Funciones F(x*, y*):</div>
+                <div style="font-size: 1.05rem; font-weight: 700; color: #f4f4f5; font-family: 'JetBrains Mono', monospace; margin-top: 6px; line-height: 1.5;">
+                  f₁(x*, y*) = <span id="n-res-f1-val">0</span><br>
+                  f₂(x*, y*) = <span id="n-res-f2-val">0</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #a1a1aa; margin-top: 6px;">Convergencia alcanzada en <span id="n-res-iter-count" style="color: #22d3ee; font-weight: 700;"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulas desglosadas por cada iteración -->
+        <div class="step-controls-bar">
+          <div class="step-toggle-title">
+            <h3>Desglose Detallado de Cada Iteración (Paso a Paso con Matrices)</h3>
+            <p>Se evalúan las funciones f<sub>1</sub>, f<sub>2</sub>, la Matriz Jacobiana J(x, y), su determinante det(J), la solución del sistema lineal para los incrementos (&Delta;x, &Delta;y), las nuevas coordenadas y el error relativo porcentual.</p>
+          </div>
+          <div class="toggle-buttons">
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllNewtonSteps(true)">Expandir Todos</button>
+            <button class="btn btn-sm btn-ghost" onclick="toggleAllNewtonSteps(false)">Colapsar Todos</button>
+          </div>
+        </div>
+
+        <div id="n-step-by-step-cards" class="step-cards-list"></div>
+
+        <!-- Master Table of Iterations -->
+        <div class="panel glass-card table-panel">
+          <div class="panel-header">
+            <h3>Tabla Resumen de Iteraciones del Método de Newton para Sistemas</h3>
+            <span class="badge info" style="background: rgba(6, 182, 212, 0.16); color: #22d3ee; border-color: rgba(34, 211, 238, 0.35);">Secuencia Vectorial</span>
+          </div>
+          <div class="table-responsive">
+            <table id="n-iterations-table" class="modern-table">
+              <thead>
+                <tr>
+                  <th>k (Iter)</th>
+                  <th>x<sub>k-1</sub></th>
+                  <th>y<sub>k-1</sub></th>
+                  <th>f₁(x, y)</th>
+                  <th>f₂(x, y)</th>
+                  <th>det(J)</th>
+                  <th>&Delta;x</th>
+                  <th>&Delta;y</th>
+                  <th>x<sub>k</sub></th>
+                  <th>y<sub>k</sub></th>
+                  <th>Error (&epsilon;<sub>max</sub>)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- NEWTON TAB 2: ¿QUÉ ES? -->
+    <section id="n-section-what" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>¿Qué es el Método de Newton para Sistemas de Ecuaciones No Lineales?</h2>
+          <p>El Método de Newton-Raphson para Sistemas (o simplemente <em>Método de Newton Multivariable</em>) es la generalización matricial del método clásico de una sola variable para resolver simultáneamente \( n \) ecuaciones no lineales con \( n \) incógnitas:</p>
+          
+          <div class="formula-callout">
+            \[ \mathbf{F}(\mathbf{x}) = \mathbf{0} \iff
+            \begin{cases}
+            f_1(x_1, x_2, \dots, x_n) = 0 \\
+            f_2(x_1, x_2, \dots, x_n) = 0 \\
+            \quad\vdots \\
+            f_n(x_1, x_2, \dots, x_n) = 0
+            \end{cases} \]
+          </div>
+
+          <hr class="divider">
+
+          <h3>Fundamentación Matemática: Serie de Taylor en Varias Variables</h3>
+          <p>Para un sistema de dos ecuaciones con dos incógnitas \( f_1(x, y) = 0 \) y \( f_2(x, y) = 0 \), cada función se expande en Serie de Taylor de primer orden alrededor del punto de iteración actual \( (x_k, y_k) \):</p>
+          
+          <div class="formula-callout">
+            \[ \begin{aligned}
+            f_1(x_k + \Delta x,\, y_k + \Delta y) &\approx f_1(x_k, y_k) + \frac{\partial f_1}{\partial x}\,\Delta x + \frac{\partial f_1}{\partial y}\,\Delta y = 0 \\[6pt]
+            f_2(x_k + \Delta x,\, y_k + \Delta y) &\approx f_2(x_k, y_k) + \frac{\partial f_2}{\partial x}\,\Delta x + \frac{\partial f_2}{\partial y}\,\Delta y = 0
+            \end{aligned} \]
+          </div>
+
+          <p>Reordenando matricialmente, se obtiene el sistema lineal fundamental:</p>
+
+          <div class="formula-callout">
+            \[ \begin{bmatrix}
+            \dfrac{\partial f_1}{\partial x} & \dfrac{\partial f_1}{\partial y} \\[8pt]
+            \dfrac{\partial f_2}{\partial x} & \dfrac{\partial f_2}{\partial y}
+            \end{bmatrix}
+            \begin{bmatrix} \Delta x \\ \Delta y \end{bmatrix}
+            =
+            \begin{bmatrix} -f_1(x_k, y_k) \\ -f_2(x_k, y_k) \end{bmatrix} \]
+          </div>
+
+          <p>Donde la matriz de coeficientes se denomina <strong>Matriz Jacobiana \( J(x, y) \)</strong>.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- NEWTON TAB 3: ¿CUÁNDO SE USA? -->
+    <section id="n-section-when" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>¿Cuándo y por qué se utiliza el Método de Newton para Sistemas?</h2>
+          <p>Se utiliza cuando se requiere calcular puntos de operación, intersecciones de curvas o equilibrios donde múltiples variables están fuertemente acopladas de manera no lineal.</p>
+
+          <hr class="divider">
+
+          <h3>1. Rapidez y Convergencia Cuadrática Multivariable</h3>
+          <p>Cerca de una solución real donde la matriz Jacobiana sea no singular ($\det(J) \neq 0$), el método exhibe una velocidad de convergencia cuadrática:</p>
+          <div class="formula-callout">
+            \[ \|\mathbf{e}_{k+1}\| \le C\,\|\mathbf{e}_k\|^2 \]
+          </div>
+          <p>Esto permite alcanzar tolerancias de alta precisión ($10^{-4}$ a $10^{-8}$) en apenas 3 a 5 iteraciones vectoriales.</p>
+
+          <hr class="divider">
+
+          <h3>2. Restricciones Críticas y Requisitos de Estabilidad</h3>
+          <div class="restrictions-grid">
+            <div class="restriction-box">
+              <h4 style="color: #f87171;">Determinante Nulo \(\det(J) = 0\)</h4>
+              <p>Si la matriz Jacobiana se vuelve singular, sus columnas son linealmente dependientes y el sistema de incrementos no tiene solución única (división por cero).</p>
+            </div>
+            <div class="restriction-box">
+              <h4 style="color: #fbbf24;">Sensibilidad a la Semilla Inicial \((x_0, y_0)\)</h4>
+              <p>Al ser un método abierto multivariable, si las semillas están demasiado alejadas de la raíz real, el proceso puede divergir u oscilar entre atractores.</p>
+            </div>
+            <div class="restriction-box">
+              <h4 style="color: #38bdf8;">Costo Computacional de Derivadas</h4>
+              <p>En cada paso deben evaluarse $n^2$ derivadas parciales y resolverse un sistema lineal. Por ello, la diferenciación centrada $O(h^2)$ automatiza y acelera el proceso.</p>
+            </div>
+            <div class="restriction-box">
+              <h4 style="color: #a7f3d0;">Solución Óptima</h4>
+              <p>Elegir semillas con base en consideraciones físicas del modelo o inspección gráfica previa asegura una convergencia monótona e inmediata.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- NEWTON TAB 4: PASOS DEL MÉTODO -->
+    <section id="n-section-steps" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>Método de Newton para Sistemas &bull; Pasos del Método</h2>
+          <p>Procedimiento algorítmico estandarizado paso a paso para resolver cualquier sistema no lineal de dos ecuaciones con dos incógnitas:</p>
+
+          <hr class="divider">
+
+          <div class="calc-item" style="border-left-color: #06b6d4; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #22d3ee;">Paso 1: Planteamiento y Normalización del Sistema</div>
+            <p>Escribir el sistema de ecuaciones igualando cada expresión a cero en la forma canónica:</p>
+            <div class="formula-callout">
+              \[ \begin{cases} f_1(x, y) = 0 \\ f_2(x, y) = 0 \end{cases} \]
+            </div>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #0ea5e9; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #38bdf8;">Paso 2: Construcción de la Matriz Jacobiana \(J(x, y)\)</div>
+            <p>Calcular las 4 derivadas parciales de primer orden para formar la matriz Jacobiana $2 \times 2$:</p>
+            <div class="formula-callout">
+              \[ J(x, y) = \begin{bmatrix} \dfrac{\partial f_1}{\partial x} & \dfrac{\partial f_1}{\partial y} \\[8pt] \dfrac{\partial f_2}{\partial x} & \dfrac{\partial f_2}{\partial y} \end{bmatrix} \]
+            </div>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #6366f1; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #818cf8;">Paso 3: Selección de las Semillas Iniciales \((x_0, y_0)\)</div>
+            <p>Establecer un vector de arranque inicial $\mathbf{x}_0 = (x_0, y_0)$ cercano a la zona esperada de solución.</p>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #10b981; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #34d399;">Paso 4: Evaluación de Funciones y de la Jacobiana en \((x_k, y_k)\)</div>
+            <p>Evaluar numéricamente $f_1(x_k, y_k)$, $f_2(x_k, y_k)$ y los 4 coeficientes de la matriz Jacobiana $J_{ij}$.</p>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #f59e0b; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #fbbf24;">Paso 5: Cálculo del Determinante \(\det(J)\) y Verificación de No Singularidad</div>
+            <p>Calcular $\det(J) = \left(\dfrac{\partial f_1}{\partial x}\right)\left(\dfrac{\partial f_2}{\partial y}\right) - \left(\dfrac{\partial f_1}{\partial y}\right)\left(\dfrac{\partial f_2}{\partial x}\right)$ y verificar que $|\det(J)| > 10^{-12}$ para evitar indeterminaciones.</p>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #ec4899; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #f472b6;">Paso 6: Solución del Sistema Lineal para los Incrementos \((\Delta x, \Delta y)\)</div>
+            <p>Resolver el sistema $J \cdot [\Delta x, \Delta y]^T = [-f_1, -f_2]^T$ mediante la Regla de Cramer:</p>
+            <div class="formula-callout">
+              \[ \Delta x = \frac{-f_1\dfrac{\partial f_2}{\partial y} + f_2\dfrac{\partial f_1}{\partial y}}{\det(J)}, \qquad \Delta y = \frac{-f_2\dfrac{\partial f_1}{\partial x} + f_1\dfrac{\partial f_2}{\partial x}}{\det(J)} \]
+            </div>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #8b5cf6; margin-bottom: 14px;">
+            <div class="calc-formula-title" style="color: #a78bfa;">Paso 7: Actualización Vectorial de las Variables</div>
+            <p>Sumar las correcciones calculadas al punto actual:</p>
+            <div class="formula-callout">
+              \[ x_{k+1} = x_k + \Delta x, \qquad y_{k+1} = y_k + \Delta y \]
+            </div>
+          </div>
+
+          <div class="calc-item" style="border-left-color: #14b8a6;">
+            <div class="calc-formula-title" style="color: #2dd4bf;">Paso 8: Cálculo del Error y Criterio de Parada</div>
+            <p>Calcular el error relativo porcentual $\epsilon_x = \left|\frac{\Delta x}{x_{k+1}}\right| \times 100\%$, $\epsilon_y = \left|\frac{\Delta y}{y_{k+1}}\right| \times 100\%$ y tomar $\epsilon_{\max} = \max(\epsilon_x, \epsilon_y)$. Si $\epsilon_{\max} \le \text{tol}$, el método ha convergido. De lo contrario, asignar $k = k+1$ y volver al Paso 4.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- NEWTON TAB 5: EJEMPLOS DE USO -->
+    <section id="n-section-examples" class="tab-section">
+      <div class="theory-container glass-card" style="max-width: 1100px;">
+        <article class="theory-article">
+          <h2>Catálogo de 6 Sistemas No Lineales Curados de Newton</h2>
+          <p>Selecciona cualquiera de estos 6 problemas representativos de ingeniería y ciencias para cargarlos con un solo clic y analizar su paso a paso matricial completo:</p>
+        </article>
+      </div>
+
+      <div class="examples-grid" id="n-examples-cards-grid">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- NEWTON TAB 6: GUÍA DE USO -->
+    <section id="n-section-guide" class="tab-section">
+      <div class="theory-container glass-card">
+        <article class="theory-article">
+          <h2>Guía Rápida: Cómo usar la Calculadora de Newton para Sistemas</h2>
+          <p>Instrucciones y recomendaciones prácticas para resolver cualquier sistema de ecuaciones no lineales con exactitud.</p>
+
+          <hr class="divider">
+
+          <h3>1. Cómo escribir las funciones f₁(x, y) y f₂(x, y)</h3>
+          <p>La calculadora interpreta expresiones en dos variables $x$ e $y$ con formato natural:</p>
+          <ul style="margin-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>Potencias:</strong> Usa el circunflejo, ej: <code>x^2</code>, <code>y^3</code>, <code>(x + y)^2</code>.</li>
+            <li><strong>Multiplicación implícita:</strong> Puedes escribir <code>2x</code>, <code>3y</code>, <code>xy</code>, <code>3xy^2</code> o usar el operador asterisco <code>3*x*y^2</code>.</li>
+            <li><strong>Funciones trascendentes:</strong> <code>e^(-x)</code> o <code>exp(-x)</code> para exponencial; <code>ln(x)</code> para logaritmo; <code>sin(x)</code>, <code>cos(y)</code>, <code>tan()</code> para trigonometría; <code>sqrt()</code> para raíz cuadrada.</li>
+            <li><strong>Forma igualada a cero:</strong> Si tu ecuación original es $x^2 + xy = 10$, escríbela como <code>x^2 + x*y - 10</code>.</li>
+          </ul>
+
+          <hr class="divider">
+
+          <h3>2. ¿Es obligatorio ingresar las 4 derivadas parciales del Jacobiano?</h3>
+          <p><strong>No.</strong> Las derivadas analíticas son completamente opcionales. Si dejas los campos vacíos, la calculadora aplica automáticamente un algoritmo de <em>diferenciación finita central $O(h^2)$</em> con $h = 10^{-6}$ para cada una de las 4 entradas de la matriz Jacobiana.</p>
+
+          <hr class="divider">
+
+          <h3>3. Recomendaciones sobre las Semillas Iniciales (x₀, y₀)</h3>
+          <p>Si la calculadora reporta que la matriz Jacobiana es singular ($\det(J) \approx 0$) o no alcanza la tolerancia en las iteraciones asignadas, prueba modificando ligeramente los valores iniciales $(x_0, y_0)$ para apartarte de puntos críticos.</p>
+        </article>
+      </div>
+    </section>
+  </div> <!-- /#module-newton -->
+
+  <!-- ============================================== -->
+  <!-- MODULE 4: NUMERICAL DIFFERENTIATION            -->
+  <!-- ============================================== -->
+  <div id="module-diff" class="main-module">
+    <header class="main-header">
+      <div class="badge-tag badge-diff">DIFERENCIACIÓN NUMÉRICA DE FUNCIONES Y DATOS</div>
+      <h1 class="gradient-title">Calculadora de Diferenciación Numérica</h1>
+      <p class="subtitle">Aproximación paso a paso de la derivada \(f'(x_0)\) mediante <strong>Diferencias Progresivas y Regresivas</strong>, <strong>Fórmulas de 3 Puntos</strong> y <strong>Fórmulas de 5 Puntos</strong> con notación matemática de libro en LaTeX.</p>
+
+      <nav class="nav-tabs">
+        <button id="d-tab-calc" class="tab-btn active" onclick="switchDiffTab('calc')">Implementación (Calculadora)</button>
+        <button id="d-tab-what" class="tab-btn" onclick="switchDiffTab('what')">¿Qué es?</button>
+        <button id="d-tab-when" class="tab-btn" onclick="switchDiffTab('when')">¿Cuándo se usa?</button>
+        <button id="d-tab-steps" class="tab-btn" onclick="switchDiffTab('steps')">Pasos del Método</button>
+        <button id="d-tab-examples" class="tab-btn" onclick="switchDiffTab('examples')">6 Ejemplos Curados</button>
+        <button id="d-tab-guide" class="tab-btn" onclick="switchDiffTab('guide')">Guía de Uso</button>
+      </nav>
+    </header>
+
+    <!-- DIFF TAB 1: CALCULADORA -->
+    <section id="d-section-calc" class="tab-section active">
+      <!-- Selector de Subtemas de Diferenciación (según pizarra) -->
+      <div class="subtopic-pills-bar">
+        <span class="subtopic-bar-label">SUBTEMAS:</span>
+        <button id="d-sub-btn-diff2" class="subtopic-pill active" onclick="selectDiffFamily('diff2')">
+          <span class="subtopic-pill-num">1</span>
+          <span>Fórmula de diferencia (Progresiva y Regresiva)</span>
+        </button>
+        <button id="d-sub-btn-diff3" class="subtopic-pill" onclick="selectDiffFamily('diff3')">
+          <span class="subtopic-pill-num">2</span>
+          <span>Fórmula de 3 puntos</span>
+        </button>
+        <button id="d-sub-btn-diff5" class="subtopic-pill" onclick="selectDiffFamily('diff5')">
+          <span class="subtopic-pill-num">3</span>
+          <span>Fórmula de 5 puntos</span>
+        </button>
+      </div>
+
+      <!-- Monitor Didáctico -->
+      <div class="method-didactic-monitor">
+        <div class="monitor-main">
+          <div class="monitor-header-row">
+            <span id="d-monitor-cat" class="monitor-category-tag">Fórmula de diferencia (Progresiva y Regresiva)</span>
+            <span id="d-monitor-badge" class="badge info" style="background: rgba(139, 92, 246, 0.16); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.35);">Orden \(O(h)\) &bull; 2 puntos</span>
+          </div>
+          <div id="d-monitor-formula" class="monitor-formula-display"></div>
+          <div id="d-monitor-text" class="monitor-theorem-text"></div>
+        </div>
+        <div class="monitor-quick-indicators">
+          <div class="indicator-row"><span>Orden:</span> <span id="d-ind-order" class="indicator-val">\(O(h)\)</span></div>
+          <div class="indicator-row"><span>Nodos:</span> <span id="d-ind-pts" class="indicator-val">2 nodos</span></div>
+          <div class="indicator-row"><span>Truncamiento:</span> <span id="d-ind-err" class="indicator-val">\(-\tfrac{h}{2}f''(\xi)\)</span></div>
+        </div>
+      </div>
+
+      <div class="layout-grid">
+        <!-- Panel izquierdo: Parámetros -->
+        <div class="panel glass-card controls-panel">
+          <div class="panel-header">
+            <h3>Parámetros de Derivación</h3>
+            <span class="badge info" style="background: rgba(139, 92, 246, 0.16); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.35);">\(f'(x_0)\)</span>
+          </div>
+          <p class="panel-desc" style="margin: 4px 0 14px; font-size: 0.82rem; color: #a1a1aa;">
+            Selecciona un ejemplo curado o configura el esquema de diferencias finitas, el punto \(x_0\) y el tamaño de paso \(h\).
+          </p>
+
+          <div class="form-group">
+            <label for="d-example-select">Cargar Ejemplo Predefinido:</label>
+            <div class="select-wrapper">
+              <select id="d-example-select" onchange="loadPresetDiffExample(this.value)">
+                <option value="dex1" selected>Ejemplo 1: Derivada de ln(x) — Progresiva y Regresiva</option>
+                <option value="dex2">Ejemplo 2: Exponencial e^x — Progresiva vs. Regresiva</option>
+                <option value="dex3">Ejemplo 3: sen(x) — Fórmula de 3 puntos (Punto medio)</option>
+                <option value="dex4">Ejemplo 4: x·e^x — Fórmula de 3 puntos (Extremo adelante)</option>
+                <option value="dex5">Ejemplo 5: e^x·sen(x) — Fórmula de 5 puntos (Punto medio)</option>
+                <option value="dex6">Ejemplo 6: Tabla discreta de x·e^x — 5 puntos</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-variant">Variante de la Fórmula:</label>
+            <div class="select-wrapper">
+              <select id="d-variant" onchange="updateDiffMonitorAndPreview()"></select>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="form-group">
+              <label for="d-x0">Punto de Evaluación \(x_0\):</label>
+              <input type="number" id="d-x0" value="1.8" step="any" oninput="updateDiffMonitorAndPreview()">
+              <span class="field-hint">Abscisa donde se aproxima \(f'(x_0)\)</span>
+            </div>
+
+            <div class="form-group" id="d-h-group">
+              <label for="d-h">Tamaño de Paso \(h\):</label>
+              <input type="number" id="d-h" value="0.1" step="any" min="0.000001" oninput="updateDiffMonitorAndPreview()">
+              <span class="field-hint">Incremento entre nodos (\(h > 0\))</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-decimals">Decimales para Mostrar:</label>
+            <div class="select-wrapper">
+              <select id="d-decimals">
+                <option value="4">4 Decimales (0.xxxx)</option>
+                <option value="6" selected>6 Decimales (0.xxxxxx)</option>
+                <option value="8">8 Decimales (0.xxxxxxxx)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="action-buttons-group">
+            <button class="btn btn-secondary" onclick="resetDiffInputs()">Restablecer</button>
+            <button class="btn btn-ghost" onclick="clearDiffInputs()">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Panel derecho: Función o Tabla -->
+        <div class="panel glass-card matrix-panel">
+          <div class="panel-header">
+            <h3>Función \(f(x)\) o Tabla de Datos</h3>
+            <div class="mode-toggle-pills">
+              <button id="d-mode-func" class="mode-pill active" onclick="setDiffInputMode('func')">Función \(f(x)\)</button>
+              <button id="d-mode-table" class="mode-pill" onclick="setDiffInputMode('table')">Tabla \((x_i, f(x_i))\)</button>
+            </div>
+          </div>
+
+          <div id="d-func-inputs">
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="d-expr" style="font-weight: 600; color: #f4f4f5;">Función a derivar \(f(x)\):</label>
+              <input type="text" id="d-expr" value="ln(x)" placeholder="Ej: ln(x), e^x*sin(x), x^3 - 2*x" oninput="updateDiffMonitorAndPreview()" class="nm-mono-input">
+              <span class="field-hint">Sintaxis: <code>+ - * / ^</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>exp</code> o <code>e^x</code>, <code>ln</code>, <code>log</code>, <code>sqrt</code>, <code>pi</code>. Multiplicación implícita: <code>2x</code>, <code>x*e^x</code>.</span>
+            </div>
+          </div>
+
+          <div id="d-table-inputs" style="display: none;">
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="d-table-text" style="font-weight: 600; color: #f4f4f5;">Pares ordenados \(x_i \quad f(x_i)\) (uno por línea, igualmente espaciados):</label>
+              <textarea id="d-table-text" rows="5" class="nm-mono-textarea" placeholder="1.8  10.889365&#10;1.9  12.703199&#10;2.0  14.778112&#10;2.1  17.148957&#10;2.2  19.855030" oninput="updateDiffMonitorAndPreview()"></textarea>
+              <span class="field-hint">El paso \(h\) se detecta automáticamente a partir del espaciamiento uniforme de la tabla.</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="d-exact">Derivada Analítica Exacta \(f'(x)\) (Opcional, para comparar error real):</label>
+            <input type="text" id="d-exact" value="1/x" placeholder="Opcional: ej. 1/x, cos(x), e^x*(x+1)" oninput="updateDiffMonitorAndPreview()" class="nm-mono-input">
+          </div>
+
+          <!-- Vista previa en LaTeX -->
+          <div class="poly-preview-card" style="margin-top: 16px;">
+            <div class="poly-preview-label">Visualización en Vivo en Formato de Libro (LaTeX):</div>
+            <div id="d-fn-preview" class="poly-preview-math"></div>
+          </div>
+
+          <div class="cta-row" style="margin-top: 20px;">
+            <button id="btn-d-solve" class="btn btn-primary btn-lg" onclick="solveDifferentiation()">
+              Calcular Derivada Numérica Paso a Paso
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de Validación -->
+      <div id="d-validation-banner" class="validation-banner" style="display: none;"></div>
+
+      <!-- Resultados -->
+      <section id="d-results-container" class="results-section" style="display: none;">
+        <div class="results-header glass-card">
+          <div class="summary-top">
+            <div>
+              <span class="badge success" id="d-res-method-badge" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.4);">Diferenciación Numérica</span>
+              <h2 id="d-res-status-title">Resultado de la Derivada</h2>
+              <p id="d-res-summary-desc" class="res-desc"></p>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-secondary" onclick="window.print()">Imprimir / Guardar PDF</button>
+            </div>
+          </div>
+
+          <div class="solution-card" style="margin-top: 16px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch;">
+              <div style="flex: 1; min-width: 240px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid rgba(167, 139, 250, 0.35);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Aproximación Numérica \(f'(x_0)\):</div>
+                <div id="d-res-approx" style="font-size: 1.35rem; font-weight: 700; color: #34d399; margin-top: 8px;"></div>
+              </div>
+              <div style="flex: 1; min-width: 220px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Valor Exacto / Referencia:</div>
+                <div id="d-res-exact" style="font-size: 1.2rem; font-weight: 600; color: #f4f4f5; margin-top: 8px;"></div>
+              </div>
+              <div style="flex: 1; min-width: 220px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Error de Truncamiento Real:</div>
+                <div id="d-res-error" style="font-size: 1.1rem; font-weight: 600; color: #c4b5fd; margin-top: 8px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-controls-bar">
+          <div class="step-toggle-title">
+            <h3>Desarrollo Matemático Paso a Paso (Notación de Libro en LaTeX)</h3>
+            <p>Se muestran la fórmula general, la generación de nodos \(x_k\), la evaluación explícita de \(f(x_k)\), la sustitución en la fracción y el análisis de error.</p>
+          </div>
+          <div class="toggle-buttons">
+            <button class="btn btn-sm btn-ghost" onclick="NM.toggleAll('d-step-by-step-cards', true)">Expandir Todos</button>
+            <button class="btn btn-sm btn-ghost" onclick="NM.toggleAll('d-step-by-step-cards', false)">Colapsar Todos</button>
+          </div>
+        </div>
+
+        <div id="d-step-by-step-cards" class="step-cards-list"></div>
+
+        <!-- Tabla de convergencia al refinar h -->
+        <div id="d-convergence-panel" class="panel glass-card table-panel">
+          <div class="panel-header">
+            <h3>Estudio de Convergencia al Reducir el Paso \(h \to h/2^k\)</h3>
+            <span class="badge info" style="background: rgba(139, 92, 246, 0.16); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.35);">Verificación Empírica del Orden \(O(h^p)\)</span>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Paso \(h_k\)</th>
+                  <th>Aproximación \(f'(x_0)\)</th>
+                  <th>Error Absoluto \(|E(h_k)|\)</th>
+                  <th>Razón \(|E(h_{k-1}) / E(h_k)|\)</th>
+                </tr>
+              </thead>
+              <tbody id="d-convergence-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="d-section-what" class="tab-section">
+      <div class="theory-container glass-card"><article id="d-theory-what-content" class="theory-article"></article></div>
+    </section>
+    <section id="d-section-when" class="tab-section">
+      <div class="theory-container glass-card"><article id="d-theory-when-content" class="theory-article"></article></div>
+    </section>
+    <section id="d-section-steps" class="tab-section">
+      <div class="theory-container glass-card"><article id="d-theory-steps-content" class="theory-article"></article></div>
+    </section>
+    <section id="d-section-examples" class="tab-section">
+      <div class="theory-container glass-card" style="max-width: 1100px;">
+        <article class="theory-article">
+          <h2>Catálogo de 6 Ejemplos Curados de Diferenciación Numérica</h2>
+          <p>Selecciona cualquier problema para cargarlo inmediatamente con su desarrollo paso a paso en LaTeX:</p>
+        </article>
+      </div>
+      <div class="examples-grid" id="d-examples-cards-grid"></div>
+    </section>
+    <section id="d-section-guide" class="tab-section">
+      <div class="theory-container glass-card"><article id="d-theory-guide-content" class="theory-article"></article></div>
+    </section>
+  </div> <!-- /#module-diff -->
+
+  <!-- ============================================== -->
+  <!-- MODULE 5: NUMERICAL INTEGRATION                -->
+  <!-- ============================================== -->
+  <div id="module-integ" class="main-module">
+    <header class="main-header">
+      <div class="badge-tag badge-integ">CUADRATURA E INTEGRACIÓN NUMÉRICA DEFINIDA</div>
+      <h1 class="gradient-title">Calculadora de Integración Numérica</h1>
+      <p class="subtitle">Resolución detallada paso a paso de integrales definidas \(\int_a^b f(x)\,dx\) mediante el <strong>Método del Trapecio</strong>, <strong>Método de Simpson (1/3 y 3/8)</strong>, <strong>Integración de Romberg</strong> y <strong>Cuadratura Gaussiana</strong>.</p>
+
+      <nav class="nav-tabs">
+        <button id="i-tab-calc" class="tab-btn active" onclick="switchIntegTab('calc')">Implementación (Calculadora)</button>
+        <button id="i-tab-what" class="tab-btn" onclick="switchIntegTab('what')">¿Qué es?</button>
+        <button id="i-tab-when" class="tab-btn" onclick="switchIntegTab('when')">¿Cuándo se usa?</button>
+        <button id="i-tab-steps" class="tab-btn" onclick="switchIntegTab('steps')">Pasos del Método</button>
+        <button id="i-tab-examples" class="tab-btn" onclick="switchIntegTab('examples')">6 Ejemplos Curados</button>
+        <button id="i-tab-guide" class="tab-btn" onclick="switchIntegTab('guide')">Guía de Uso</button>
+      </nav>
+    </header>
+
+    <!-- INTEG TAB 1: CALCULADORA -->
+    <section id="i-section-calc" class="tab-section active">
+      <!-- Selector de los 4 Subtemas de Integración (según pizarra) -->
+      <div class="subtopic-pills-bar">
+        <span class="subtopic-bar-label">SUBTEMAS:</span>
+        <button id="i-sub-btn-trap" class="subtopic-pill active" onclick="selectIntegSubtopic('trap')">
+          <span class="subtopic-pill-num">1</span>
+          <span>Método del Trapecio</span>
+        </button>
+        <button id="i-sub-btn-simpson" class="subtopic-pill" onclick="selectIntegSubtopic('simpson')">
+          <span class="subtopic-pill-num">2</span>
+          <span>Método de Simpson</span>
+        </button>
+        <button id="i-sub-btn-romberg" class="subtopic-pill" onclick="selectIntegSubtopic('romberg')">
+          <span class="subtopic-pill-num">3</span>
+          <span>Integración de Romberg</span>
+        </button>
+        <button id="i-sub-btn-gauss" class="subtopic-pill" onclick="selectIntegSubtopic('gauss')">
+          <span class="subtopic-pill-num">4</span>
+          <span>Método de Cuadratura Gaussiana</span>
+        </button>
+      </div>
+
+      <!-- Monitor Didáctico -->
+      <div class="method-didactic-monitor">
+        <div class="monitor-main">
+          <div class="monitor-header-row">
+            <span id="i-monitor-cat" class="monitor-category-tag">Método del Trapecio</span>
+            <span id="i-monitor-badge" class="badge info">Newton–Cotes</span>
+          </div>
+          <div id="i-monitor-formula" class="monitor-formula-display"></div>
+          <div id="i-monitor-text" class="monitor-theorem-text"></div>
+        </div>
+        <div class="monitor-quick-indicators">
+          <div class="indicator-row"><span>Exactitud:</span> <span id="i-ind-order" class="indicator-val">\(O(h^2)\)</span></div>
+          <div class="indicator-row"><span>Esquema:</span> <span id="i-ind-pts" class="indicator-val">\(n+1\) nodos</span></div>
+          <div class="indicator-row"><span>Dominio:</span> <span class="indicator-val">\([a,\,b]\subset\mathbb{R}\)</span></div>
+        </div>
+      </div>
+
+      <div class="layout-grid">
+        <!-- Panel izquierdo: Configuración -->
+        <div class="panel glass-card controls-panel">
+          <div class="panel-header">
+            <h3>Parámetros de Integración</h3>
+            <span class="badge info">\(\int_a^b f(x)\,dx\)</span>
+          </div>
+          <p class="panel-desc" style="margin: 4px 0 14px; font-size: 0.82rem; color: #a1a1aa;">
+            Configura los límites de integración \([a,b]\) y los parámetros propios del método seleccionado.
+          </p>
+
+          <div class="form-group">
+            <label for="i-example-select">Cargar Ejemplo Predefinido:</label>
+            <div class="select-wrapper">
+              <select id="i-example-select" onchange="loadPresetIntegExample(this.value)">
+                <option value="iex1" selected>Ejemplo 1: ∫₁² ln(x) dx — Método del Trapecio (n = 4)</option>
+                <option value="iex2">Ejemplo 2: ∫₀¹ 4/(1+x²) dx = π — Simpson 1/3 (n = 4)</option>
+                <option value="iex3">Ejemplo 3: Polinomio de 5° grado — Simpson 3/8 (n = 3)</option>
+                <option value="iex4">Ejemplo 4: Campana de Gauss ∫₀¹ e^(−x²) dx — Romberg (4 niveles)</option>
+                <option value="iex5">Ejemplo 5: ∫₀^π sen(x) dx = 2 — Integración de Romberg</option>
+                <option value="iex6">Ejemplo 6: ∫₁³ (x³+2x²−x+1) dx — Cuadratura Gaussiana (3 pts)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="config-row" id="i-ab-row">
+            <div class="form-group">
+              <label for="i-a">Límite Inferior \(a\):</label>
+              <input type="number" id="i-a" value="1" step="any" oninput="updateIntegMonitorAndPreview()">
+              <span class="field-hint">Extremo izquierdo</span>
+            </div>
+            <div class="form-group">
+              <label for="i-b">Límite Superior \(b\):</label>
+              <input type="number" id="i-b" value="2" step="any" oninput="updateIntegMonitorAndPreview()">
+              <span class="field-hint">Extremo derecho (\(b > a\))</span>
+            </div>
+          </div>
+
+          <!-- Selector de variante de Simpson -->
+          <div class="form-group" id="i-group-simpson-rule" style="display: none;">
+            <label for="i-simpson-type">Regla de Simpson:</label>
+            <div class="select-wrapper">
+              <select id="i-simpson-type" onchange="selectIntegSubtopic('simpson', this.value)">
+                <option value="simpson13" selected>Simpson 1/3 Compuesto (n par: 2, 4, 6, …)</option>
+                <option value="simpson38">Simpson 3/8 Compuesto (n múltiplo de 3: 3, 6, 9, …)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subintervalos n para Trapecio y Simpson -->
+          <div class="config-row" id="i-group-n">
+            <div class="form-group" style="flex: 1;">
+              <label for="i-n">Número de Subintervalos \(n\):</label>
+              <input type="number" id="i-n" value="4" min="1" max="1000" step="1">
+              <span class="field-hint">Con \(n=1\) en Trapecio es simple; con \(n>1\) es compuesto</span>
+            </div>
+          </div>
+
+          <!-- Parámetros de Romberg -->
+          <div class="config-row" id="i-group-romberg" style="display: none;">
+            <div class="form-group">
+              <label for="i-levels">Niveles \(k\) de Romberg:</label>
+              <input type="number" id="i-levels" value="4" min="2" max="8" step="1">
+              <span class="field-hint">Tabla \(k\times k\) (hasta \(2^{k-1}\) subintervalos)</span>
+            </div>
+            <div class="form-group">
+              <label for="i-tol">Tolerancia Opcional:</label>
+              <input type="text" id="i-tol" value="0.000001">
+              <span class="field-hint">\(|R_{k,k}-R_{k-1,k-1}|\)</span>
+            </div>
+          </div>
+
+          <!-- Parámetros de Cuadratura Gaussiana -->
+          <div class="config-row" id="i-group-gauss" style="display: none;">
+            <div class="form-group">
+              <label for="i-gauss-pts">Puntos de Gauss–Legendre \(m\):</label>
+              <div class="select-wrapper">
+                <select id="i-gauss-pts">
+                  <option value="2">2 puntos (exacta grado ≤ 3)</option>
+                  <option value="3" selected>3 puntos (exacta grado ≤ 5)</option>
+                  <option value="4">4 puntos (exacta grado ≤ 7)</option>
+                  <option value="5">5 puntos (exacta grado ≤ 9)</option>
+                  <option value="6">6 puntos (exacta grado ≤ 11)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="i-gauss-subs">Subintervalos:</label>
+              <input type="number" id="i-gauss-subs" value="1" min="1" max="50" step="1">
+              <span class="field-hint">1 = estándar en \([a,b]\)</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="i-decimals">Decimales para Mostrar:</label>
+            <div class="select-wrapper">
+              <select id="i-decimals">
+                <option value="4">4 Decimales (0.xxxx)</option>
+                <option value="6" selected>6 Decimales (0.xxxxxx)</option>
+                <option value="8">8 Decimales (0.xxxxxxxx)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="action-buttons-group">
+            <button class="btn btn-secondary" onclick="resetIntegInputs()">Restablecer</button>
+            <button class="btn btn-ghost" onclick="clearIntegInputs()">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Panel derecho: Integrando f(x) o Tabla -->
+        <div class="panel glass-card matrix-panel">
+          <div class="panel-header">
+            <h3>Integrando \(f(x)\)</h3>
+            <div id="i-mode-switcher" class="mode-toggle-pills">
+              <button id="i-mode-func" class="mode-pill active" onclick="setIntegInputMode('func')">Función \(f(x)\)</button>
+              <button id="i-mode-table" class="mode-pill" onclick="setIntegInputMode('table')">Tabla \((x_i, f(x_i))\)</button>
+            </div>
+          </div>
+
+          <div id="i-func-inputs">
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="i-expr" style="font-weight: 600; color: #f4f4f5;">Función a integrar \(f(x)\):</label>
+              <input type="text" id="i-expr" value="ln(x)" placeholder="Ej: ln(x), e^(-x^2), 4/(1+x^2), sin(x)" oninput="updateIntegMonitorAndPreview()" class="nm-mono-input">
+              <span class="field-hint">Sintaxis: <code>+ - * / ^</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>exp</code> o <code>e^x</code>, <code>ln</code>, <code>sqrt</code>, <code>pi</code>.</span>
+            </div>
+          </div>
+
+          <div id="i-table-inputs" style="display: none;">
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="i-table-text" style="font-weight: 600; color: #f4f4f5;">Tabla de Nodos Equiespaciados \(x_i \quad f(x_i)\):</label>
+              <textarea id="i-table-text" rows="5" class="nm-mono-textarea" placeholder="0.0  0.000000&#10;0.5  0.250000&#10;1.0  1.000000&#10;1.5  2.250000&#10;2.0  4.000000" oninput="updateIntegMonitorAndPreview()"></textarea>
+              <span class="field-hint">Para Simpson 1/3 la cantidad de subintervalos \(n\) debe ser par (número impar de filas); para Simpson 3/8 \(n\) debe ser múltiplo de 3.</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="i-exact">Valor Exacto Conocido de la Integral (Opcional):</label>
+            <input type="text" id="i-exact" value="0.3862943611" placeholder="Se calcula referencia Gauss 6×64 automática si se deja vacío" class="nm-mono-input">
+          </div>
+
+          <!-- Vista previa en vivo -->
+          <div class="poly-preview-card" style="margin-top: 16px;">
+            <div class="poly-preview-label">Integral Definida Planteada (LaTeX):</div>
+            <div id="i-fn-preview" class="poly-preview-math"></div>
+          </div>
+
+          <div class="cta-row" style="margin-top: 20px;">
+            <button id="btn-i-solve" class="btn btn-primary btn-lg" onclick="solveIntegration()">
+              Calcular Integral Numérica Paso a Paso
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de Validación -->
+      <div id="i-validation-banner" class="validation-banner" style="display: none;"></div>
+
+      <!-- Resultados -->
+      <section id="i-results-container" class="results-section" style="display: none;">
+        <div class="results-header glass-card">
+          <div class="summary-top">
+            <div>
+              <span class="badge success" id="i-res-method-badge">Integración Numérica</span>
+              <h2 id="i-res-status-title">Resultado de la Integral</h2>
+              <p id="i-res-summary-desc" class="res-desc"></p>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-secondary" onclick="window.print()">Imprimir / Guardar PDF</button>
+            </div>
+          </div>
+
+          <div class="solution-card" style="margin-top: 16px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch;">
+              <div style="flex: 1; min-width: 240px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.35);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Valor Aproximado de la Integral:</div>
+                <div id="i-res-integral" style="font-size: 1.4rem; font-weight: 700; color: #34d399; margin-top: 8px;"></div>
+              </div>
+              <div style="flex: 1; min-width: 220px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Valor Exacto / Referencia:</div>
+                <div id="i-res-exact" style="font-size: 1.2rem; font-weight: 600; color: #f4f4f5; margin-top: 8px;"></div>
+              </div>
+              <div style="flex: 1; min-width: 220px; padding: 16px 20px; background: rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.8rem; color: #a1a1aa; text-transform: uppercase; font-weight: 700;">Error Absoluto y Relativo:</div>
+                <div id="i-res-error" style="font-size: 1.1rem; font-weight: 600; color: #6ee7b7; margin-top: 8px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-controls-bar">
+          <div class="step-toggle-title">
+            <h3>Desglose Detallado Paso a Paso (Notación de Libro en LaTeX)</h3>
+            <p>Incluye el cálculo de \(h\) o cambio de intervalo \([-1,1]\), evaluación nodo por nodo, tabla de multiplicadores, extrapolaciones de Richardson o raíces de Legendre.</p>
+          </div>
+          <div class="toggle-buttons">
+            <button class="btn btn-sm btn-ghost" onclick="NM.toggleAll('i-step-by-step-cards', true)">Expandir Todos</button>
+            <button class="btn btn-sm btn-ghost" onclick="NM.toggleAll('i-step-by-step-cards', false)">Colapsar Todos</button>
+          </div>
+        </div>
+
+        <div id="i-step-by-step-cards" class="step-cards-list"></div>
+
+        <!-- Tabla comparativa de los 4 métodos sobre la misma integral -->
+        <div id="i-comparison-panel" class="panel glass-card table-panel">
+          <div class="panel-header">
+            <h3>Comparativa Directa entre los 4 Métodos de Integración</h3>
+            <span class="badge info">Trapecio &bull; Simpson &bull; Romberg &bull; Gauss–Legendre</span>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Evaluaciones de \(f(x)\)</th>
+                  <th>Aproximación \(I\)</th>
+                  <th>Error Absoluto \(|I - I_{\text{aprox}}|\)</th>
+                </tr>
+              </thead>
+              <tbody id="i-comparison-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="i-section-what" class="tab-section">
+      <div class="theory-container glass-card"><article id="i-theory-what-content" class="theory-article"></article></div>
+    </section>
+    <section id="i-section-when" class="tab-section">
+      <div class="theory-container glass-card"><article id="i-theory-when-content" class="theory-article"></article></div>
+    </section>
+    <section id="i-section-steps" class="tab-section">
+      <div class="theory-container glass-card"><article id="i-theory-steps-content" class="theory-article"></article></div>
+    </section>
+    <section id="i-section-examples" class="tab-section">
+      <div class="theory-container glass-card" style="max-width: 1100px;">
+        <article class="theory-article">
+          <h2>Catálogo de 6 Ejemplos Curados de Integración Numérica</h2>
+          <p>Selecciona cualquiera de estos problemas clásicos para cargarlo en la calculadora y examinar su desarrollo completo:</p>
+        </article>
+      </div>
+      <div class="examples-grid" id="i-examples-cards-grid"></div>
+    </section>
+    <section id="i-section-guide" class="tab-section">
+      <div class="theory-container glass-card"><article id="i-theory-guide-content" class="theory-article"></article></div>
+    </section>
+  </div> <!-- /#module-integ -->
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <p>Calculadora Didáctica de Métodos Numéricos &bull; Renderizado Matemático LaTeX (KaTeX) &bull; Sistemas Lineales, Bairstow, Newton, Diferenciación e Integración Numérica</p>
+  </footer>
+</div>
+
+  <!-- Scripts Modulares Arquitectados -->
+  <script src="js/utils.js?v=20261111_rev8"></script>
+  <script src="js/math-render.js?v=20261111_rev8"></script>
+  <script src="js/expr-parser.js?v=20261111_rev8"></script>
+  <script src="js/numcalc-common.js?v=20261111_rev8"></script>
+  <script src="js/linear-data.js?v=20261111_rev8"></script>
+  <script src="js/linear-solver.js?v=20261111_rev8"></script>
+  <script src="js/linear-ui.js?v=20261111_rev8"></script>
+  <script src="js/bairstow-data.js?v=20261111_rev8"></script>
+  <script src="js/bairstow-solver.js?v=20261111_rev8"></script>
+  <script src="js/bairstow-ui.js?v=20261111_rev8"></script>
+  <script src="js/newton-data.js?v=20261111_rev8"></script>
+  <script src="js/newton-solver.js?v=20261111_rev8"></script>
+  <script src="js/newton-ui.js?v=20261111_rev8"></script>
+  <script src="js/diff-data.js?v=20261111_rev8"></script>
+  <script src="js/diff-solver.js?v=20261111_rev8"></script>
+  <script src="js/diff-ui.js?v=20261111_rev8"></script>
+  <script src="js/integ-data.js?v=20261111_rev8"></script>
+  <script src="js/integ-solver.js?v=20261111_rev8"></script>
+  <script src="js/integ-ui.js?v=20261111_rev8"></script>
+  <script src="js/app.js?v=20261111_rev8"></script>
 </body>
 </html>
